@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Set - Lego'llection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container text-center">
+            <img src="https://via.placeholder.com/150x50?text=Logo+Lego'llection" alt="Logo Lego'llection" class="img-fluid">
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">Lego'llection</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.php">Recherche</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ajouter
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="addDropdown">
+                            <li><a class="dropdown-item" href="add_site.html">Site</a></li>
+                            <li><a class="dropdown-item" href="add_local.html">Local</a></li>
+                            <li><a class="dropdown-item" href="add_rangement.html">Rangement</a></li>
+                            <li><a class="dropdown-item" href="add_niveau.html">Niveau</a></li>
+                            <li><a class="dropdown-item" href="add_set.html">Set</a></li>
+                            <li><a class="dropdown-item" href="add_collection.html">Collection</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex ms-auto">
+                    <div id="profileMenuContainer" class="d-flex align-items-center">
+                        <a href="login.html">
+                            <img src="./assets/ProfilParDefaut.png" class="rounded-circle" alt="Photo de profil" width="40" height="40">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Ajouter un Set</h1>
+        <div id="message" class="alert" style="display: none;"></div>
+        <form id="addSetForm">
+            <div class="mb-3">
+                <label for="niveau" class="form-label">Niveau</label>
+                <select class="form-control" id="niveau" name="niveau" required>
+                    <option value="">Sélectionnez un niveau</option>
+                </select>
+                <input type="hidden" id="idNiveau" name="idNiveau">
+                <input type="hidden" id="idRangement" name="idRangement">
+                <input type="hidden" id="idLocal" name="idLocal">
+                <input type="hidden" id="idSite" name="idSite">
+            </div>
+            <div class="mb-3">
+                <label for="idCategorie" class="form-label">Catégorie</label>
+                <select class="form-control" id="idCategorie" name="idCategorie" required>
+                    <option value="">Sélectionnez une catégorie</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="nom" name="nom" required>
+            </div>
+            <div class="mb-3">
+                <label for="infoRangement" class="form-label">Info Rangement</label>
+                <textarea class="form-control" id="infoRangement" name="infoRangement"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="photo" class="form-label">Photo (URL)</label>
+                <input type="text" class="form-control" id="photo" name="photo">
+            </div>
+            <div class="mb-3">
+                <label for="infoPlus" class="form-label">Info Plus</label>
+                <textarea class="form-control" id="infoPlus" name="infoPlus"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="statut" class="form-label">Statut</label>
+                <select class="form-control" id="statut" name="statut">
+                    <option value="disponible">Disponible</option>
+                    <option value="emprunté">Emprunté</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter le Set</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/permissions.js"></script>
+    <script src="assets/profile_menu.js"></script>
+    <script>
+        // Charger les niveaux
+        fetch('api/niveaux.php', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('niveau');
+                    data.niveaux.forEach(n => {
+                        const option = document.createElement('option');
+                        option.value = n.idNiveau + '|' + n.idRangement + '|' + n.idLocal + '|' + n.idSite;
+                        option.textContent = n.nom + ' (' + n.rangement_nom + ', ' + n.local_nom + ', ' + n.site_nom + ')';
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+        // Charger les catégories
+        fetch('api/categories.php', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('idCategorie');
+                    data.categories.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.idCategorie;
+                        option.textContent = c.nom;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+        document.getElementById('niveau').addEventListener('change', function() {
+            const [idNiveau, idRangement, idLocal, idSite] = this.value.split('|');
+            document.getElementById('idNiveau').value = idNiveau;
+            document.getElementById('idRangement').value = idRangement;
+            document.getElementById('idLocal').value = idLocal;
+            document.getElementById('idSite').value = idSite;
+        });
+
+        document.getElementById('addSetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('api/add_set.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('message');
+                if (data.success) {
+                    messageDiv.className = 'alert alert-success';
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.display = 'block';
+                    this.reset();
+                } else {
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('message').innerHTML = '<div class="alert alert-danger">Erreur de connexion.</div>';
+            });
+        });
+
+        // Vérifier les permissions au démarrage
+        checkUserPermissions();
+
+        // Initialiser le menu profil
+        initializeProfileMenu();
+    </script>
+</body>
+</html>

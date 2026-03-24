@@ -1,0 +1,51 @@
+<?php
+session_start();
+header('Content-Type: application/json; charset=utf-8');
+
+include '../config.php';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Vérifier que l'utilisateur est connecté
+    if (!isset($_SESSION['user']) || !isset($_SESSION['user']['idUtilisateur'])) {
+        echo json_encode(['success' => false, 'message' => 'Vous devez être connecté pour ajouter un set.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Vérifier que l'utilisateur a le rôle "owner"
+    if ($_SESSION['user']['role'] !== 'owner') {
+        echo json_encode(['success' => false, 'message' => 'Seuls les propriétaires (owner) peuvent ajouter des sets.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $idNiveau = $_POST['idNiveau'] ?? '';
+    $idRangement = $_POST['idRangement'] ?? '';
+    $idLocal = $_POST['idLocal'] ?? '';
+    $idSite = $_POST['idSite'] ?? '';
+    $idCategorie = $_POST['idCategorie'] ?? '';
+    $nom = $_POST['nom'] ?? '';
+    $infoRangement = $_POST['infoRangement'] ?? '';
+    $photo = $_POST['photo'] ?? '';
+    $infoPlus = $_POST['infoPlus'] ?? '';
+    $statut = $_POST['statut'] ?? 'disponible';
+    
+    // Le propriétaire est l'utilisateur connecté
+    $Pro_idUtilisateur = $_SESSION['user']['idUtilisateur'];
+    $idUtilisateur = null; // idUtilisateur peut rester null (emprunteur)
+
+    if ($idNiveau && $idRangement && $idLocal && $idSite && $idCategorie && $nom) {
+        $idObjet = uniqid('lego_', true);
+        $date = date('Y-m-d H:i:s');
+        try {
+            $stmt = $pdo->prepare("INSERT INTO Lego (idNiveau, idRangement, idLocal, idSite, idCategorie, Pro_idUtilisateur, idObjet, nom, infoRangement, photo, infoPlus, date, statut, idUtilisateur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$idNiveau, $idRangement, $idLocal, $idSite, $idCategorie, $Pro_idUtilisateur, $idObjet, $nom, $infoRangement, $photo, $infoPlus, $date, $statut, $idUtilisateur]);
+            echo json_encode(['success' => true, 'message' => 'Set ajouté avec succès.']);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout du set : ' . $e->getMessage()]);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs obligatoires.']);
+    }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);
+}
+?>

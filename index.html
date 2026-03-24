@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Eventually add an icon -->
+    <title>Lego'llection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Bandeau avec logo -->
+    <header class="bg-primary text-white py-3">
+        <div class="container text-center">
+            <!-- Logo -->
+            <img src="https://via.placeholder.com/150x50?text=Logo+Lego'llection" alt="Logo Lego'llection" class="img-fluid">
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">Lego'llection</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.php">Recherche</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ajouter
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="addDropdown">
+                            <li><a class="dropdown-item" href="add_site.html">Site</a></li>
+                            <li><a class="dropdown-item" href="add_local.html">Local</a></li>
+                            <li><a class="dropdown-item" href="add_rangement.html">Rangement</a></li>
+                            <li><a class="dropdown-item" href="add_niveau.html">Niveau</a></li>
+                            <li><a class="dropdown-item" href="add_set.html">Set</a></li>
+                            <li><a class="dropdown-item" href="add_collection.html">Collection</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex ms-auto">
+                <div id="profileMenuContainer" class="d-flex align-items-center">
+                    <a href="login.html">
+                        <img src="./assets/ProfilParDefaut.png" class="rounded-circle" alt="Photo de profil" width="40" height="40">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Bienvenue dans votre application de gestion de stockage</h1>
+        <p>Cette page est la page d'accueil de votre application LegoCollection.</p>
+        
+        <!-- Affichage des catégories -->
+
+        <!-- Affichage des 10 derniers sets -->
+        <h2 class="mt-5">Derniers Sets ajoutés</h2>
+        <div id="setsContent">
+            <p>Chargement des sets...</p>
+        </div>
+
+        <!-- TODO -->
+        <!-- Pagination -->
+        <nav id="paginationContainer" style="display: none;" aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" id="prevBtn">
+                    <a class="page-link" href="#">Précédent</a>
+                </li>
+                <li class="page-item active" id="pageInfo">
+                    <span class="page-link">Page <span id="currentPage">1</span></span>
+                </li>
+                <li class="page-item" id="nextBtn">
+                    <a class="page-link" href="#">Suivant</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/permissions.js"></script>
+    <script src="assets/profile_menu.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // Charger les catégories
+        fetch('api/categories.php', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('categoriesContent');
+                if (data.success) {
+                    let html = '<ul class="list-group">';
+                    data.categories.forEach(cat => {
+                        html += `<li class="list-group-item">${escapeHtml(cat.nom)}</li>`;
+                    });
+                    html += '</ul>';
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = `<p class="text-danger">Erreur : ${escapeHtml(data.error || 'Impossible de charger les catégories')}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Categories Error:', error);
+                document.getElementById('categoriesContent').innerHTML = `<p class="text-danger">Erreur réseau : ${error.message}</p>`;
+            });
+
+        // Charger les sets avec pagination
+        function loadSets(page = 1) {
+            fetch(`api/sets.php?page=${page}`, { credentials: 'include' })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Sets data:', data);
+                    const content = document.getElementById('setsContent');
+                    
+                    if (!data.success) {
+                        content.innerHTML = `<p class="text-danger">Erreur serveur : ${escapeHtml(data.error || 'Impossible de charger les sets')}</p>`;
+                        return;
+                    }
+
+                    if (data.sets && data.sets.length > 0) {
+                        currentPage = data.page;
+                        totalPages = data.totalPages;
+
+                        let html = '<div class="row">';
+                        data.sets.forEach(set => {
+                            const date = new Date(set.date).toLocaleDateString('fr-FR');
+                            const localization = [set.niveau_nom, set.rangement_nom, set.local_nom, set.site_nom]
+                                .filter(x => x).join(' > ');
+                            
+                            html += `
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card h-100">
+                                        ${set.photo ? `<img src="${escapeHtml(set.photo)}" class="card-img-top" alt="${escapeHtml(set.nom)}" style="height: 200px; object-fit: cover;">` : ''}
+                                        <div class="card-body">
+                                            <h5 class="card-title">${escapeHtml(set.nom)}</h5>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    <strong>Catégorie:</strong> ${escapeHtml(set.categorie || 'N/A')}<br>
+                                                    <strong>Propriétaire:</strong> ${escapeHtml((set.proprietaire_prenom || set.prenomUtilisateur || '') + ' ' + (set.proprietaire_nom || set.nomUtilisateur || ''))}<br>
+                                                    <strong>Localisation:</strong> ${escapeHtml(localization)}<br>
+                                                    <strong>Statut:</strong> <span class="badge ${set.statut === 'disponible' ? 'bg-success' : 'bg-warning'}">${escapeHtml(set.statut)}</span><br>
+                                                    <strong>Ajouté:</strong> ${date}
+                                                </small>
+                                            </p>
+                                            ${set.infoPlus ? `<p class="card-text">${escapeHtml(set.infoPlus)}</p>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        content.innerHTML = html;
+
+                        // Afficher la pagination si nécessaire
+                        const paginationContainer = document.getElementById('paginationContainer');
+                        document.getElementById('currentPage').textContent = currentPage;
+                        
+                        if (totalPages > 1) {
+                            paginationContainer.style.display = 'block';
+
+                            // Gérer les boutons
+                            const prevBtn = document.getElementById('prevBtn');
+                            const nextBtn = document.getElementById('nextBtn');
+
+                            prevBtn.classList.toggle('disabled', currentPage === 1);
+                            nextBtn.classList.toggle('disabled', currentPage === totalPages);
+
+                            prevBtn.onclick = (e) => {
+                                e.preventDefault();
+                                if (currentPage > 1) loadSets(currentPage - 1);
+                            };
+
+                            nextBtn.onclick = (e) => {
+                                e.preventDefault();
+                                if (currentPage < totalPages) loadSets(currentPage + 1);
+                            };
+                        } else {
+                            paginationContainer.style.display = 'none';
+                        }
+                    } else if (data.success && data.sets.length === 0) {
+                        content.innerHTML = '<p class="text-muted">Aucun set disponible pour le moment.</p>';
+                        document.getElementById('paginationContainer').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    const content = document.getElementById('setsContent');
+                    content.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Erreur de chargement</strong>
+                            <p>${error.message}</p>
+                            <small>Consultez la console (F12) pour plus d'infos. Vérifiez api/health.php pour diagnostiquer la BD.</small>
+                        </div>
+                    `;
+                });
+        }
+
+        // Fonction pour échapper les caractères HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        // Charger les sets au démarrage
+        loadSets(1);
+
+        // Vérifier les permissions au démarrage
+        checkUserPermissions();
+
+        // Initialiser le menu profil
+        initializeProfileMenu();
+    </script>
+</body>
+</html>

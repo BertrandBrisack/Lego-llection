@@ -1,3 +1,5 @@
+drop database if exists Legollection;
+
 
 -- Création de la base
 CREATE DATABASE IF NOT EXISTS Legollection
@@ -72,7 +74,7 @@ CREATE TABLE Utilisateur (
     prenomUtilisateur VARCHAR(50) NOT NULL,
     role VARCHAR(50) NOT NULL,
     login VARCHAR(50) NOT NULL,
-    mdp VARCHAR(50) NOT NULL,
+    mdp VARCHAR(255) NOT NULL,
     PRIMARY KEY (idUtilisateur)
 ) ENGINE=InnoDB;
 
