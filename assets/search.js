@@ -1,6 +1,10 @@
+// Variable globale pour l'état de connexion
+let isUserConnected = false;
+
 // Charger les options de recherche au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     loadSearchOptions();
+    checkUserConnection();
     
     // Gérer la soumission du formulaire
     document.getElementById('searchForm').addEventListener('submit', function(e) {
@@ -101,6 +105,18 @@ async function loadSearchOptions() {
     }
 }
 
+// Vérifier si l'utilisateur est connecté
+async function checkUserConnection() {
+    try {
+        const response = await fetch('./api/current_user.php');
+        const data = await response.json();
+        isUserConnected = data.connected;
+    } catch (error) {
+        console.error('Erreur lors de la vérification de connexion:', error);
+        isUserConnected = false;
+    }
+}
+
 // Effectuer la recherche
 async function performSearch() {
     const name = document.getElementById('nameSearch').value.trim();
@@ -177,12 +193,17 @@ function displayResults(data) {
         // Formater le statut
         let statusBadge = '';
         let statusColor = '';
+        let borrowButton = '';
         if (set.statut) {
             const lowerStatus = set.statut.toLowerCase();
             // Déterminer la couleur en fonction du statut
             if (lowerStatus.includes('disponible') || lowerStatus.includes('available')) {
                 statusColor = 'success';
-            } else if (lowerStatus.includes('emprunté') || lowerStatus.includes('borrowed')) {
+                // Ajouter le bouton d'emprunt si disponible et utilisateur connecté
+                if (isUserConnected) {
+                    borrowButton = `<button class="btn btn-primary btn-sm ms-2 borrow-btn" data-id="${set.idObjet}">Emprunter</button>`;
+                }
+            } else if (lowerStatus.includes('emprunté') || lowerStatus.includes('borrowed') || lowerStatus.includes('emprunte')) {
                 statusColor = 'danger';
             } else {
                 statusColor = 'secondary';
@@ -197,7 +218,11 @@ function displayResults(data) {
                 <div class="set-info">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <h5 class="mb-2">${escapeHtml(set.nom)}</h5>
-                        ${statusBadge ? `<span class="badge bg-${statusColor}">${escapeHtml(statusBadge)}</span>` : ''}
+                        <div>
+                            ${statusBadge ? `<span class="badge bg-${statusColor}">${escapeHtml(statusBadge)}</span>` : ''}
+                            ${borrowButton}
+                        </div>
+                    </div>
                     </div>
                     ${set.infoPlus ? `<p class="mb-2">${escapeHtml(set.infoPlus)}</p>` : ''}
                     <div class="set-details">
@@ -218,6 +243,14 @@ function displayResults(data) {
         </div>
     `;
     }).join('');
+
+    // Ajouter les event listeners pour les boutons d'emprunt
+    document.querySelectorAll('.borrow-btn').forEach(button => {
+        button.addEventListener('click', async function() {
+            const setId = this.getAttribute('data-id');
+            await borrowSet(setId, this);
+        });
+    });
 }
 
 // Fonction pour échapper les caractères HTML
@@ -226,4 +259,45 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Fonction pour emprunter un set
+async function borrowSet(setId, button) {
+    // Désactiver le bouton pendant le traitement
+    button.disabled = true;
+    button.textContent = 'Emprunt en cours...';
+
+    try {
+        const formData = new FormData();
+        formData.append('idObjet', setId);
+
+        const response = await fetch('./api/borrow_set.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Mettre à jour l'affichage
+            button.style.display = 'none';
+            const badge = button.previousElementSibling;
+            if (badge && badge.classList.contains('badge')) {
+                badge.className = 'badge bg-danger';
+                badge.textContent = 'emprunté';
+            }
+            alert('Objet emprunté avec succès !');
+        } else {
+            alert('Erreur lors de l\'emprunt: ' + data.error);
+            // Réactiver le bouton
+            button.disabled = false;
+            button.textContent = 'Emprunter';
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de l\'emprunt.');
+        // Réactiver le bouton
+        button.disabled = false;
+        button.textContent = 'Emprunter';
+    }
 }

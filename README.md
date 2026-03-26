@@ -4,6 +4,38 @@ Lego'llection
 ## Descritption
 Gestionnaire de stockage / rangement
 
+### Changements récents de nommage (2026-03-26)
+
+- `Pro_idUtilisateur` → `idOwner` (propriétaire du set)
+- `idUtilisateur` → `idBorrower` (emprunteur du set)
+
+Ces changements améliorent la lisibilité du code et clarifient le rôle de chaque colonne.
+
+⚠️ **IMPORTANT** : La structure de la base de données a été simplifiée pour éliminer les redondances dans les clés étrangères.
+
+### Ancienne structure (avec redondances)
+- `Local`: PK(idLocal, idSite), FK(idSite)
+- `Rangement`: PK(idRangement, idLocal, idSite), FK(idLocal, idSite)
+- `Niveau`: PK(idNiveau, idRangement, idLocal, idSite), FK(idRangement, idLocal, idSite)
+- `Lego`: PK énorme avec tous les IDs, FK complexe
+
+### Nouvelle structure (simplifiée)
+- `Local`: PK(idLocal), FK(idSite)
+- `Rangement`: PK(idRangement), FK(idLocal)
+- `Niveau`: PK(idNiveau), FK(idRangement)
+- `Lego`: PK(idObjet), FK(idNiveau), idOwner (propriétaire), idBorrower (emprunteur)
+
+### Migration nécessaire
+Si vous avez des données existantes, vous devez :
+1. **Sauvegarder** vos données
+2. **Recréer la base** avec le nouveau schéma `legollection.sql`
+3. **Migrer les données** (les IDs uniques doivent être préservés)
+
+### Impact sur le code
+- Les requêtes JOIN ont été simplifiées
+- Les INSERT/UPDATE utilisent moins de colonnes
+- L'intégrité référentielle est maintenue via les FK directes
+
 ## Structure du projet
 TODO
 

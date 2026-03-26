@@ -62,7 +62,6 @@
                     <option value="">Sélectionnez un local</option>
                 </select>
                 <input type="hidden" id="idLocal" name="idLocal">
-                <input type="hidden" id="idSite" name="idSite">
             </div>
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom</label>
@@ -92,7 +91,7 @@
                     const select = document.getElementById('local');
                     data.locals.forEach(local => {
                         const option = document.createElement('option');
-                        option.value = local.idLocal + '|' + local.idSite;
+                        option.value = local.idLocal;
                         option.textContent = local.nom + ' (' + local.site_nom + ')';
                         select.appendChild(option);
                     });
@@ -100,9 +99,7 @@
             });
 
         document.getElementById('local').addEventListener('change', function() {
-            const [idLocal, idSite] = this.value.split('|');
-            document.getElementById('idLocal').value = idLocal;
-            document.getElementById('idSite').value = idSite;
+            document.getElementById('idLocal').value = this.value;
         });
 
         document.getElementById('addRangementForm').addEventListener('submit', function(e) {

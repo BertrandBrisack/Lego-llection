@@ -46,17 +46,11 @@ try {
             s.nom as site_nom
         FROM `Lego` l
         LEFT JOIN `Categorie` c ON l.idCategorie = c.idCategorie
-        LEFT JOIN `Utilisateur` u ON l.Pro_idUtilisateur = u.idUtilisateur
-        LEFT JOIN `Niveau` n ON l.idNiveau = n.idNiveau 
-            AND l.idRangement = n.idRangement 
-            AND l.idLocal = n.idLocal 
-            AND l.idSite = n.idSite
-        LEFT JOIN `Rangement` r ON l.idRangement = r.idRangement 
-            AND l.idLocal = r.idLocal 
-            AND l.idSite = r.idSite
-        LEFT JOIN `Local` lo ON l.idLocal = lo.idLocal 
-            AND l.idSite = lo.idSite
-        LEFT JOIN `Site` s ON l.idSite = s.idSite
+        LEFT JOIN `Utilisateur` u ON l.idOwner = u.idUtilisateur
+        LEFT JOIN `Niveau` n ON l.idNiveau = n.idNiveau
+        LEFT JOIN `Rangement` r ON n.idRangement = r.idRangement
+        LEFT JOIN `Local` lo ON r.idLocal = lo.idLocal
+        LEFT JOIN `Site` s ON lo.idSite = s.idSite
         ORDER BY l.date DESC
         LIMIT ? OFFSET ?
     ";

@@ -30,41 +30,38 @@ CREATE TABLE Site (
 ) ENGINE=InnoDB;
 
 CREATE TABLE Local (
-    idSite VARCHAR(50) NOT NULL,
     idLocal VARCHAR(50) NOT NULL,
+    idSite VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoLocal VARCHAR(50) NOT NULL,
     photo VARCHAR(50) NOT NULL,
-    PRIMARY KEY (idLocal, idSite),
+    PRIMARY KEY (idLocal),
     FOREIGN KEY (idSite)
         REFERENCES Site(idSite)
         ON UPDATE RESTRICT ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 CREATE TABLE Rangement (
-    idLocal VARCHAR(50) NOT NULL,
-    idSite VARCHAR(50) NOT NULL,
     idRangement VARCHAR(50) NOT NULL,
+    idLocal VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoRangement VARCHAR(50) NOT NULL,
     photo VARCHAR(50) NOT NULL,
-    PRIMARY KEY (idRangement, idLocal, idSite),
-    FOREIGN KEY (idLocal, idSite)
-        REFERENCES Local(idLocal, idSite)
+    PRIMARY KEY (idRangement),
+    FOREIGN KEY (idLocal)
+        REFERENCES Local(idLocal)
         ON UPDATE RESTRICT ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 CREATE TABLE Niveau (
-    idRangement VARCHAR(50) NOT NULL,
-    idLocal VARCHAR(50) NOT NULL,
-    idSite VARCHAR(50) NOT NULL,
     idNiveau VARCHAR(50) NOT NULL,
+    idRangement VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoNiveau VARCHAR(50) NOT NULL,
     photo VARCHAR(50) NOT NULL,
-    PRIMARY KEY (idNiveau, idRangement, idLocal, idSite),
-    FOREIGN KEY (idRangement, idLocal, idSite)
-        REFERENCES Rangement(idRangement, idLocal, idSite)
+    PRIMARY KEY (idNiveau),
+    FOREIGN KEY (idRangement)
+        REFERENCES Rangement(idRangement)
         ON UPDATE RESTRICT ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
@@ -79,27 +76,24 @@ CREATE TABLE Utilisateur (
 ) ENGINE=InnoDB;
 
 CREATE TABLE Lego (
-    idNiveau VARCHAR(50) NOT NULL,
-    idRangement VARCHAR(50) NOT NULL,
-    idLocal VARCHAR(50) NOT NULL,
-    idSite VARCHAR(50) NOT NULL,
-    idCategorie VARCHAR(50) NOT NULL,
-    Pro_idUtilisateur VARCHAR(50) NOT NULL,
     idObjet VARCHAR(50) NOT NULL,
+    idNiveau VARCHAR(50) NOT NULL,
+    idCategorie VARCHAR(50) NOT NULL,
+    idOwner VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoRangement VARCHAR(50) NOT NULL,
     photo VARCHAR(50) NOT NULL,
     infoPlus VARCHAR(50) NOT NULL,
     date VARCHAR(50) NOT NULL,
     statut VARCHAR(50) NOT NULL,
-    idUtilisateur VARCHAR(50),
-    PRIMARY KEY (idObjet, idNiveau, idRangement, idLocal, idSite, idCategorie, Pro_idUtilisateur),
+    idBorrower VARCHAR(50),
+    PRIMARY KEY (idObjet),
 
-    FOREIGN KEY (idUtilisateur)
+    FOREIGN KEY (idBorrower)
         REFERENCES Utilisateur(idUtilisateur)
         ON UPDATE RESTRICT ON DELETE SET NULL,
 
-    FOREIGN KEY (Pro_idUtilisateur)
+    FOREIGN KEY (idOwner)
         REFERENCES Utilisateur(idUtilisateur)
         ON UPDATE RESTRICT ON DELETE RESTRICT,
 
@@ -107,7 +101,7 @@ CREATE TABLE Lego (
         REFERENCES Categorie(idCategorie)
         ON UPDATE RESTRICT ON DELETE RESTRICT,
 
-    FOREIGN KEY (idNiveau, idRangement, idLocal, idSite)
-        REFERENCES Niveau(idNiveau, idRangement, idLocal, idSite)
+    FOREIGN KEY (idNiveau)
+        REFERENCES Niveau(idNiveau)
         ON UPDATE RESTRICT ON DELETE RESTRICT
 ) ENGINE=InnoDB;

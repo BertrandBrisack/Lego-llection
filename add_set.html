@@ -62,9 +62,6 @@
                     <option value="">Sélectionnez un niveau</option>
                 </select>
                 <input type="hidden" id="idNiveau" name="idNiveau">
-                <input type="hidden" id="idRangement" name="idRangement">
-                <input type="hidden" id="idLocal" name="idLocal">
-                <input type="hidden" id="idSite" name="idSite">
             </div>
             <div class="mb-3">
                 <label for="idCategorie" class="form-label">Catégorie</label>
@@ -111,7 +108,7 @@
                     const select = document.getElementById('niveau');
                     data.niveaux.forEach(n => {
                         const option = document.createElement('option');
-                        option.value = n.idNiveau + '|' + n.idRangement + '|' + n.idLocal + '|' + n.idSite;
+                        option.value = n.idNiveau;
                         option.textContent = n.nom + ' (' + n.rangement_nom + ', ' + n.local_nom + ', ' + n.site_nom + ')';
                         select.appendChild(option);
                     });
@@ -134,11 +131,7 @@
             });
 
         document.getElementById('niveau').addEventListener('change', function() {
-            const [idNiveau, idRangement, idLocal, idSite] = this.value.split('|');
-            document.getElementById('idNiveau').value = idNiveau;
-            document.getElementById('idRangement').value = idRangement;
-            document.getElementById('idLocal').value = idLocal;
-            document.getElementById('idSite').value = idSite;
+            document.getElementById('idNiveau').value = this.value;
         });
 
         document.getElementById('addSetForm').addEventListener('submit', function(e) {

@@ -16,7 +16,7 @@ if (!$userId) {
 
 try {
     // Compter les propriétés (sets) du propriétaire
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM Lego WHERE Pro_idUtilisateur = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM Lego WHERE idOwner = ?");
     $stmt->execute([$userId]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $count = $result['total'] ?? 0;
@@ -25,7 +25,7 @@ try {
     $stmt = $pdo->prepare("
         SELECT idObjet, nom, date, statut, categorie 
         FROM Lego 
-        WHERE Pro_idUtilisateur = ?
+        WHERE idOwner = ?
         ORDER BY date DESC
         LIMIT 10
     ");

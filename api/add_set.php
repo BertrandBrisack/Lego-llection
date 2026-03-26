@@ -18,9 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $idNiveau = $_POST['idNiveau'] ?? '';
-    $idRangement = $_POST['idRangement'] ?? '';
-    $idLocal = $_POST['idLocal'] ?? '';
-    $idSite = $_POST['idSite'] ?? '';
     $idCategorie = $_POST['idCategorie'] ?? '';
     $nom = $_POST['nom'] ?? '';
     $infoRangement = $_POST['infoRangement'] ?? '';
@@ -29,15 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $statut = $_POST['statut'] ?? 'disponible';
     
     // Le propriétaire est l'utilisateur connecté
-    $Pro_idUtilisateur = $_SESSION['user']['idUtilisateur'];
-    $idUtilisateur = null; // idUtilisateur peut rester null (emprunteur)
+    $idOwner = $_SESSION['user']['idUtilisateur'];
+    $idBorrower = null; // idBorrower peut rester null (emprunteur)
 
-    if ($idNiveau && $idRangement && $idLocal && $idSite && $idCategorie && $nom) {
+    if ($idNiveau && $idCategorie && $nom) {
         $idObjet = uniqid('lego_', true);
         $date = date('Y-m-d H:i:s');
         try {
-            $stmt = $pdo->prepare("INSERT INTO Lego (idNiveau, idRangement, idLocal, idSite, idCategorie, Pro_idUtilisateur, idObjet, nom, infoRangement, photo, infoPlus, date, statut, idUtilisateur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$idNiveau, $idRangement, $idLocal, $idSite, $idCategorie, $Pro_idUtilisateur, $idObjet, $nom, $infoRangement, $photo, $infoPlus, $date, $statut, $idUtilisateur]);
+            $stmt = $pdo->prepare("INSERT INTO Lego (idNiveau, idCategorie, idOwner, idObjet, nom, infoRangement, photo, infoPlus, date, statut, idBorrower) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$idNiveau, $idCategorie, $idOwner, $idObjet, $nom, $infoRangement, $photo, $infoPlus, $date, $statut, $idBorrower]);
             echo json_encode(['success' => true, 'message' => 'Set ajouté avec succès.']);
         } catch (PDOException $e) {
             echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout du set : ' . $e->getMessage()]);

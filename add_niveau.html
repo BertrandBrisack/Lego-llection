@@ -62,8 +62,6 @@
                     <option value="">Sélectionnez un rangement</option>
                 </select>
                 <input type="hidden" id="idRangement" name="idRangement">
-                <input type="hidden" id="idLocal" name="idLocal">
-                <input type="hidden" id="idSite" name="idSite">
             </div>
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom</label>
@@ -93,7 +91,7 @@
                     const select = document.getElementById('rangement');
                     data.rangements.forEach(r => {
                         const option = document.createElement('option');
-                        option.value = r.idRangement + '|' + r.idLocal + '|' + r.idSite;
+                        option.value = r.idRangement;
                         option.textContent = r.nom + ' (' + r.local_nom + ', ' + r.site_nom + ')';
                         select.appendChild(option);
                     });
@@ -101,10 +99,7 @@
             });
 
         document.getElementById('rangement').addEventListener('change', function() {
-            const [idRangement, idLocal, idSite] = this.value.split('|');
-            document.getElementById('idRangement').value = idRangement;
-            document.getElementById('idLocal').value = idLocal;
-            document.getElementById('idSite').value = idSite;
+            document.getElementById('idRangement').value = this.value;
         });
 
         document.getElementById('addNiveauForm').addEventListener('submit', function(e) {
