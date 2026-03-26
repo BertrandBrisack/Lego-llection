@@ -72,7 +72,7 @@ function initializeProfileMenu() {
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         
-                        <!-- Rôle de l'utilisateur -->
+                        <!-- Rôle de l'utilisateur (info additionnelle) -->
                         <li>
                             <span class="dropdown-header d-block text-muted" style="font-size: 0.875rem;">
                                 Rôle: <span class="badge bg-info">${escapeHtml(data.user.role)}</span>
@@ -203,6 +203,10 @@ function logout() {
  * 
  * @param {string} text - Texte à échapper
  * @return {string} Texte échappé sûr pour l'HTML
+ * 
+ * @description
+ * Remplace les caractères HTML spéciaux par leurs entités correspondantes
+ * Mesure de sécurité importante pour l'affichage de contenu utilisateur
  */
 function escapeHtml(text) {
     const map = {
@@ -215,3 +219,44 @@ function escapeHtml(text) {
     return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
 }
 
+/**
+ * INITIALISATION AUTOMATIQUE
+ * 
+ * Note: initializeProfileMenu() doit être appelée dans chaque page HTML
+ * via un événement DOMContentLoaded pour assurer que tous les éléments DOM
+ * sont disponibles.
+ * 
+ * Exemple d'utilisation dans index.html:
+ * 
+ * <script src="assets/profile_menu.js"></script>
+ * <script>
+ *     document.addEventListener('DOMContentLoaded', function() {
+ *         initializeProfileMenu();
+ *     });
+ * </script>
+ */
+
+// ============================================================================
+// ÉVÉNEMENTS ET HOOKS DISPONIBLES
+// ============================================================================
+
+/**
+ * Hook: Avant la déconnexion
+ * Note: Non implémenté actuellement
+ * À implémenter si besoin de confirmer avant déconnexion
+ */
+function beforeLogout() {
+    // Exemple: Sauvegarder des données, afficher une confirmation, etc.
+    return confirm('Êtes-vous sûr de vouloir vous déconnecter?');
+}
+
+/**
+ * Hook: Après la déconnexion réussie
+ * Note: Actuellement gérée par redirection
+ * À customiser si besoin d'actions supplémentaires
+ */
+function afterLogoutSuccess() {
+    console.log('Logout successful, redirecting...');
+}
+
+// ============================================================================

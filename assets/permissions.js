@@ -20,7 +20,6 @@ function checkUserPermissions() {
                 addDropdown.style.opacity = '0.5';
                 addDropdown.style.pointerEvents = 'none';
                 addDropdown.style.cursor = 'not-allowed';
-                addDropdown.style.textDecoration = 'line-through';
                 
                 // Ajouter un tooltip
                 addDropdown.title = !data.connected 
