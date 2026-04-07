@@ -194,8 +194,6 @@ function displayResults(data) {
         let statusBadge = '';
         let statusColor = '';
         let borrowButton = '';
-        const detailUrl = `set.html?id=${encodeURIComponent(set.idObjet || '')}`;
-
         if (set.statut) {
             const lowerStatus = set.statut.toLowerCase();
             // Déterminer la couleur en fonction du statut
@@ -203,7 +201,7 @@ function displayResults(data) {
                 statusColor = 'success';
                 // Ajouter le bouton d'emprunt si disponible et utilisateur connecté
                 if (isUserConnected) {
-                    borrowButton = `<button class="btn btn-primary btn-sm borrow-btn" data-id="${escapeHtml(set.idObjet || '')}">Emprunter</button>`;
+                    borrowButton = `<button class="btn btn-primary btn-sm ms-2 borrow-btn" data-id="${set.idObjet}">Emprunter</button>`;
                 }
             } else if (lowerStatus.includes('emprunté') || lowerStatus.includes('borrowed') || lowerStatus.includes('emprunte')) {
                 statusColor = 'danger';
@@ -214,17 +212,17 @@ function displayResults(data) {
         }
 
         return `
-        <div class="set-card border rounded p-3 mb-3 bg-white shadow-sm" data-set-id="${escapeHtml(set.idObjet || '')}" tabindex="0" role="link" style="cursor:pointer;">
+        <div class="set-card">
             <div class="set-header">
-                ${set.photo ? `<img src="${set.photo}" alt="${escapeHtml(set.nom || 'Set Lego')}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
+                ${set.photo ? `<img src="${set.photo}" alt="${set.nom}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
                 <div class="set-info">
-                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
                         <h5 class="mb-2">${escapeHtml(set.nom)}</h5>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <a href="${detailUrl}" class="btn btn-outline-secondary btn-sm detail-link">Voir la fiche</a>
+                        <div>
                             ${statusBadge ? `<span class="badge bg-${statusColor}">${escapeHtml(statusBadge)}</span>` : ''}
                             ${borrowButton}
                         </div>
+                    </div>
                     </div>
                     ${set.infoPlus ? `<p class="mb-2">${escapeHtml(set.infoPlus)}</p>` : ''}
                     <div class="set-details">
@@ -235,12 +233,11 @@ function displayResults(data) {
                         ${set.collection ? `<span class="set-details-item"><strong>Collection:</strong> ${escapeHtml(set.collection)}</span>` : ''}
                         ${set.date ? `<span class="set-details-item"><strong>Date:</strong> ${escapeHtml(set.date)}</span>` : ''}
                     </div>
-                    ${set.proprietaire_login || set.proprietaire_prenom || set.proprietaire_nom ? `
+                    ${set.proprietaire_prenom || set.proprietaire_nom ? `
                         <p class="mt-2 mb-0" style="font-size: 0.85rem; color: #666;">
-                            <strong>Propriétaire:</strong> ${escapeHtml(set.proprietaire_login || `${set.proprietaire_prenom || ''} ${set.proprietaire_nom || ''}`.trim())}
+                            <strong>Propriétaire:</strong> ${escapeHtml(set.proprietaire_prenom || '')} ${escapeHtml(set.proprietaire_nom || '')}
                         </p>
                     ` : ''}
-                    <p class="mt-3 mb-0 text-primary small">Cliquez pour voir la fiche complète</p>
                 </div>
             </div>
         </div>
@@ -249,43 +246,9 @@ function displayResults(data) {
 
     // Ajouter les event listeners pour les boutons d'emprunt
     document.querySelectorAll('.borrow-btn').forEach(button => {
-        button.addEventListener('click', async function(event) {
-            event.stopPropagation();
+        button.addEventListener('click', async function() {
             const setId = this.getAttribute('data-id');
             await borrowSet(setId, this);
-        });
-    });
-
-    document.querySelectorAll('.detail-link').forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.stopPropagation();
-        });
-    });
-
-    document.querySelectorAll('.set-card[data-set-id]').forEach(card => {
-        card.addEventListener('click', function(event) {
-            if (event.target.closest('button, a')) {
-                return;
-            }
-
-            const setId = this.getAttribute('data-set-id');
-            if (setId) {
-                window.location.href = `set.html?id=${encodeURIComponent(setId)}`;
-            }
-        });
-
-        card.addEventListener('keydown', function(event) {
-            if (event.target.closest('button, a')) {
-                return;
-            }
-
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                const setId = this.getAttribute('data-set-id');
-                if (setId) {
-                    window.location.href = `set.html?id=${encodeURIComponent(setId)}`;
-                }
-            }
         });
     });
 }

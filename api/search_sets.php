@@ -28,7 +28,6 @@ try {
             l.date,
             l.statut,
             c.nom as collection,
-            u.login AS proprietaire_login,
             u.prenomUtilisateur AS proprietaire_prenom,
             u.nomUtilisateur AS proprietaire_nom,
             n.nom as niveau_nom,
@@ -79,8 +78,7 @@ try {
     }
 
     if (!empty($owner)) {
-        $query .= " AND (u.login LIKE ? OR u.nomUtilisateur LIKE ? OR u.prenomUtilisateur LIKE ?)";
-        $params[] = '%' . $owner . '%';
+        $query .= " AND (u.nomUtilisateur LIKE ? OR u.prenomUtilisateur LIKE ?)";
         $params[] = '%' . $owner . '%';
         $params[] = '%' . $owner . '%';
     }
@@ -130,8 +128,7 @@ try {
     }
 
     if (!empty($owner)) {
-        $countQuery .= " AND (u.login LIKE ? OR u.nomUtilisateur LIKE ? OR u.prenomUtilisateur LIKE ?)";
-        $countParams[] = '%' . $owner . '%';
+        $countQuery .= " AND (u.nomUtilisateur LIKE ? OR u.prenomUtilisateur LIKE ?)";
         $countParams[] = '%' . $owner . '%';
         $countParams[] = '%' . $owner . '%';
     }

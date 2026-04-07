@@ -5,20 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Personnel - Lego'llection</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .storage-node summary {
-            cursor: pointer;
-            list-style: none;
-        }
-
-        .storage-node summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .storage-node {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
-        }
-    </style>
 </head>
 <body>
     <header class="bg-primary text-white py-3">
@@ -40,15 +26,6 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="search.html">Recherche</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="collectionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Collection
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="collectionDropdown">
-                            <li><a class="dropdown-item" id="myCollectionLink" href="collection.html?view=mine">Ma Collection</a></li>
-                            <li><a class="dropdown-item" id="myBorrowsLink" href="collection.html?view=borrows">Mes emprunts</a></li>
-                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -88,93 +65,19 @@
                         <div class="card-body">
                             <p><strong>Nom:</strong> <span id="userNom"></span></p>
                             <p><strong>Prénom:</strong> <span id="userPrenom"></span></p>
-                            <p><strong>Pseudo:</strong> <span id="userLogin"></span></p>
+                            <p><strong>Login:</strong> <span id="userLogin"></span></p>
                             <p><strong>Rôle:</strong> <span id="userRole"></span></p>
                         </div>
                     </div>
 
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h5>Mes Sets</h5>
+                            <h5>Mes Propriétés</h5>
                         </div>
                         <div class="card-body">
-                            <div id="userPropertiesSummary">Chargement de vos sets...</div>
+                            <p id="userProperties">Chargement de vos propriétés...</p>
                         </div>
                     </div>
-
-                    <div class="card mt-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Mon arborescence de rangement</h5>
-                            <span class="badge bg-secondary">Owner</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted">Retrouvez ici tous vos sites, locaux, rangements et niveaux. Chaque élément peut être modifié directement.</p>
-                            <div id="storageTreeContainer">Chargement de l’arborescence...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="editStorageModal" tabindex="-1" aria-labelledby="editStorageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <form id="editStorageForm" class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editStorageModalLabel">Modifier</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" id="editItemType" name="type">
-                            <input type="hidden" id="editItemId" name="id">
-
-                            <div id="editStorageFeedback"></div>
-
-                            <div class="mb-3">
-                                <label class="form-label" for="editNom">Nom</label>
-                                <input type="text" class="form-control" id="editNom" name="nom" required>
-                            </div>
-
-                            <div data-storage-group="site">
-                                <div class="mb-3">
-                                    <label class="form-label" for="editAdresse">Adresse</label>
-                                    <input type="text" class="form-control" id="editAdresse" name="adresse">
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="editCodePostal">Code postal</label>
-                                        <input type="text" class="form-control" id="editCodePostal" name="codePostal">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="editLocalite">Localité</label>
-                                        <input type="text" class="form-control" id="editLocalite" name="localite">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3" data-storage-group="local" style="display: none;">
-                                <label class="form-label" for="editInfoLocal">Infos du local</label>
-                                <textarea class="form-control" id="editInfoLocal" name="infoLocal" rows="3"></textarea>
-                            </div>
-
-                            <div class="mb-3" data-storage-group="rangement" style="display: none;">
-                                <label class="form-label" for="editInfoRangement">Infos du rangement</label>
-                                <textarea class="form-control" id="editInfoRangement" name="infoRangement" rows="3"></textarea>
-                            </div>
-
-                            <div class="mb-3" data-storage-group="niveau" style="display: none;">
-                                <label class="form-label" for="editInfoNiveau">Infos du niveau</label>
-                                <textarea class="form-control" id="editInfoNiveau" name="infoNiveau" rows="3"></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label" for="editPhoto">URL de l'image</label>
-                                <input type="text" class="form-control" id="editPhoto" name="photo">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -190,6 +93,68 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/permissions.js"></script>
     <script src="assets/profile_menu.js"></script>
-    <script src="assets/profile.js"></script>
+    <script>
+        // Charger les informations du profil utilisateur
+        fetch('api/current_user.php', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.connected && data.user) {
+                    document.getElementById('profileContent').style.display = 'block';
+                    document.getElementById('userNom').textContent = escapeHtml(data.user.nomUtilisateur);
+                    document.getElementById('userPrenom').textContent = escapeHtml(data.user.prenomUtilisateur);
+                    document.getElementById('userLogin').textContent = escapeHtml(data.user.login);
+                    document.getElementById('userRole').textContent = escapeHtml(data.user.role);
+                    
+                    // Charger les propriétés (sets) du propriétaire
+                    if (data.user.role === 'owner') {
+                        fetch(`api/user_properties.php?userId=${data.user.idUtilisateur}`, { credentials: 'include' })
+                            .then(response => response.json())
+                            .then(propData => {
+                                if (propData.success && propData.count > 0) {
+                                    document.getElementById('userProperties').innerHTML = 
+                                        `<p>Vous avez <strong>${propData.count}</strong> propriété(s) dans la collection.</p>
+                                        <ul>
+                                            ${propData.properties.map(p => `<li>${escapeHtml(p.nom)}</li>`).join('')}
+                                        </ul>`;
+                                } else {
+                                    document.getElementById('userProperties').innerHTML = 
+                                        '<p class="text-muted">Vous n\'avez pas encore de propriétés.</p>';
+                                }
+                            })
+                            .catch(error => {
+                                document.getElementById('userProperties').innerHTML = 
+                                    '<p class="text-danger">Erreur lors du chargement des propriétés.</p>';
+                            });
+                    } else {
+                        document.getElementById('userProperties').innerHTML = 
+                            '<p class="text-muted">Seuls les propriétaires (owner) peuvent avoir des propriétés.</p>';
+                    }
+                } else {
+                    document.getElementById('notConnectedMessage').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('notConnectedMessage').style.display = 'block';
+            });
+
+        // Fonction pour échapper les caractères HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        // Vérifier les permissions au démarrage
+        checkUserPermissions();
+
+        // Initialiser le menu profil
+        initializeProfileMenu();
+    </script>
 </body>
 </html>

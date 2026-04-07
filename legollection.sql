@@ -19,16 +19,6 @@ CREATE TABLE Categorie (
     PRIMARY KEY (idCategorie)
 ) ENGINE=InnoDB;
 
-CREATE TABLE Utilisateur (
-    idUtilisateur VARCHAR(50) NOT NULL,
-    nomUtilisateur VARCHAR(50) NOT NULL,
-    prenomUtilisateur VARCHAR(50) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    login VARCHAR(50) NOT NULL,
-    mdp VARCHAR(255) NOT NULL,
-    PRIMARY KEY (idUtilisateur)
-) ENGINE=InnoDB;
-
 CREATE TABLE Site (
     idSite VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
@@ -36,11 +26,7 @@ CREATE TABLE Site (
     codePostal VARCHAR(50) NOT NULL,
     localite VARCHAR(50) NOT NULL,
     photo VARCHAR(50) NOT NULL,
-    idResponsable VARCHAR(50) NOT NULL,
-    PRIMARY KEY (idSite),
-    FOREIGN KEY (idResponsable)
-        REFERENCES Utilisateur(idUtilisateur)
-        ON UPDATE RESTRICT ON DELETE RESTRICT
+    PRIMARY KEY (idSite)
 ) ENGINE=InnoDB;
 
 CREATE TABLE Local (
@@ -79,7 +65,15 @@ CREATE TABLE Niveau (
         ON UPDATE RESTRICT ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-
+CREATE TABLE Utilisateur (
+    idUtilisateur VARCHAR(50) NOT NULL,
+    nomUtilisateur VARCHAR(50) NOT NULL,
+    prenomUtilisateur VARCHAR(50) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    login VARCHAR(50) NOT NULL,
+    mdp VARCHAR(255) NOT NULL,
+    PRIMARY KEY (idUtilisateur)
+) ENGINE=InnoDB;
 
 CREATE TABLE Lego (
     idObjet VARCHAR(50) NOT NULL,
