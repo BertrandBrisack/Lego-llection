@@ -66,7 +66,7 @@ function renderSetDetails(set) {
                         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
                             <div>
                                 <h1 class="h2 mb-1">${escapeHtml(set.nom || 'Set sans nom')}</h1>
-                                <p class="text-muted mb-0">ID : ${escapeHtml(set.idObjet || 'N/A')}</p>
+                                <!--<p class="text-muted mb-0">ID : ${escapeHtml(set.idObjet || 'N/A')}</p> -->
                             </div>
                             <span class="badge ${getStatusClass(set.statut)}">${escapeHtml(set.statut || 'Inconnu')}</span>
                         </div>
