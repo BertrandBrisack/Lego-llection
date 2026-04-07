@@ -32,15 +32,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($idNiveau && $idCategorie && $nom) {
         $idObjet = uniqid('lego_', true);
         $date = date('Y-m-d H:i:s');
+
         try {
+            $ownershipStmt = $pdo->prepare("SELECT COUNT(*) FROM Niveau n JOIN Rangement r ON n.idRangement = r.idRangement JOIN Local l ON r.idLocal = l.idLocal JOIN Site s ON l.idSite = s.idSite WHERE n.idNiveau = ? AND s.idResponsable = ?");
+            $ownershipStmt->execute([$idNiveau, $idOwner]);
+
+            if ((int) $ownershipStmt->fetchColumn() === 0) {
+                echo json_encode(['success' => false, 'message' => 'Vous pouvez uniquement ajouter un set dans un niveau de vos sites.'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
             $stmt = $pdo->prepare("INSERT INTO Lego (idNiveau, idCategorie, idOwner, idObjet, nom, infoRangement, photo, infoPlus, date, statut, idBorrower) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$idNiveau, $idCategorie, $idOwner, $idObjet, $nom, $infoRangement, $photo, $infoPlus, $date, $statut, $idBorrower]);
-            echo json_encode(['success' => true, 'message' => 'Set ajouté avec succès.']);
+            echo json_encode(['success' => true, 'message' => 'Set ajouté avec succès.'], JSON_UNESCAPED_UNICODE);
         } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout du set : ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout du set : ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
         }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs obligatoires.']);
+        echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs obligatoires.'], JSON_UNESCAPED_UNICODE);
     }
 } else {
     echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);

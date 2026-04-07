@@ -24,6 +24,15 @@
                     <a class="nav-link" href="search.html">Recherche</a>
                 </li>
                 <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="collectionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Collection
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="collectionDropdown">
+                        <li><a class="dropdown-item" id="myCollectionLink" href="collection.html?view=mine">Ma Collection</a></li>
+                        <li><a class="dropdown-item" id="myBorrowsLink" href="collection.html?view=borrows">Mes emprunts</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Ajouter
                     </a>

@@ -38,6 +38,7 @@ try {
             l.date,
             l.statut,
             c.nom as categorie,
+            u.login AS proprietaire_login,
             u.prenomUtilisateur AS proprietaire_prenom,
             u.nomUtilisateur AS proprietaire_nom,
             n.nom as niveau_nom,
@@ -56,7 +57,9 @@ try {
     ";
     
     $stmt = $pdo->prepare($query);
-    $stmt->execute([$limit, $offset]);
+    $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+    $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $sets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     http_response_code(200);

@@ -3,8 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lego'llection</title>
+    <title>Détail du set - Lego'llection</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .set-hero-image,
+        .set-hero-placeholder {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+            background-color: #f8f9fa;
+        }
+
+        .set-hero-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: 600;
+            border: 1px dashed #ced4da;
+        }
+
+        .detail-card {
+            border: none;
+            box-shadow: 0 0.125rem 0.75rem rgba(0, 0, 0, 0.08);
+        }
+
+        .detail-list li {
+            padding: 0.45rem 0;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .detail-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
     <header class="bg-primary text-white py-3">
@@ -61,88 +94,25 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h1>Ajouter un Niveau</h1>
-        <div id="message" class="alert" style="display: none;"></div>
-        <form id="addNiveauForm">
-            <div class="mb-3">
-                <label for="rangement" class="form-label">Rangement</label>
-                <select class="form-control" id="rangement" name="rangement" required>
-                    <option value="">Sélectionnez un rangement</option>
-                </select>
-                <input type="hidden" id="idRangement" name="idRangement">
+    <main class="container my-4">
+        <div class="mb-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = 'index.html'; }">← Retour</button>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <div id="loadingIndicator" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
             </div>
-            <div class="mb-3">
-                <label for="nom" class="form-label">Nom</label>
-                <input type="text" class="form-control" id="nom" name="nom" required>
-            </div>
-            <div class="mb-3">
-                <label for="infoNiveau" class="form-label">Info Niveau</label>
-                <textarea class="form-control" id="infoNiveau" name="infoNiveau"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="photo" class="form-label">Photo (URL)</label>
-                <input type="text" class="form-control" id="photo" name="photo">
-            </div>
-            <button type="submit" class="btn btn-primary">Ajouter le Niveau</button>
-        </form>
-    </div>
+        </div>
+
+        <div id="setDetailContent"></div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/permissions.js"></script>
     <script src="assets/profile_menu.js"></script>
-    <script>
-        // Charger uniquement les rangements liés à l'utilisateur connecté
-        fetch('api/rangements.php?mine=1', { credentials: 'include' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const select = document.getElementById('rangement');
-                    data.rangements.forEach(r => {
-                        const option = document.createElement('option');
-                        option.value = r.idRangement;
-                        option.textContent = r.nom + ' (' + r.local_nom + ', ' + r.site_nom + ')';
-                        select.appendChild(option);
-                    });
-                }
-            });
-
-        document.getElementById('rangement').addEventListener('change', function() {
-            document.getElementById('idRangement').value = this.value;
-        });
-
-        document.getElementById('addNiveauForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            fetch('api/add_niveau.php', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messageDiv = document.getElementById('message');
-                if (data.success) {
-                    messageDiv.className = 'alert alert-success';
-                    messageDiv.textContent = data.message;
-                    messageDiv.style.display = 'block';
-                    this.reset();
-                } else {
-                    messageDiv.className = 'alert alert-danger';
-                    messageDiv.textContent = data.message;
-                    messageDiv.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                document.getElementById('message').innerHTML = '<div class="alert alert-danger">Erreur de connexion.</div>';
-            });
-        });
-
-        // Vérifier les permissions au démarrage
-        checkUserPermissions();
-
-        // Initialiser le menu profil
-        initializeProfileMenu();
-    </script>
+    <script src="assets/set.js"></script>
 </body>
 </html>
