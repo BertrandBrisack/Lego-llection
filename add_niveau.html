@@ -83,16 +83,20 @@
             <div class="mb-3">
                 <label class="form-label">Photo</label>
                 <div class="mb-2">
-                    <input type="radio" id="photo-url" name="photo-type" value="url" checked>
-                    <label for="photo-url" class="ms-1">URL d'image</label>
-                    <input type="radio" id="photo-upload" name="photo-type" value="upload" class="ms-3">
-                    <label for="photo-upload" class="ms-1">Uploader une image</label>
+                    <input type="radio" id="photoUrl" name="photoType" value="url" checked>
+                    <label for="photoUrl" class="ms-1">URL d'image</label>
+                    <input type="radio" id="photoUpload" name="photoType" value="upload" class="ms-3">
+                    <label for="photoUpload" class="ms-1">Uploader une image</label>
                 </div>
-                <div id="photo-url-container">
-                    <input type="text" class="form-control" id="photo-url-input" name="photo" placeholder="https://exemple.com/image.jpg">
+                <div id="photoUrlContainer">
+                    <input type="text" class="form-control" id="photo" name="photo" placeholder="https://exemple.com/image.jpg">
+                    <div id="photoPreview" class="mt-2" style="display: none;">
+                        <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        <small class="text-muted">Aperçu de l'image</small>
+                    </div>
                 </div>
-                <div id="photo-upload-container" style="display: none;">
-                    <input type="file" class="form-control" id="photo-file" name="photo-file" accept="image/*" capture="environment">
+                <div id="photoUploadContainer" style="display: none;">
+                    <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*" capture="environment">
                     <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB)</div>
                 </div>
             </div>
@@ -105,7 +109,6 @@
     <script src="assets/profile_menu.js"></script>
     <script src="assets/image_upload.js"></script>
     <script>
-        // Initialiser la gestion des photos
         initializePhotoUpload();
 
         // Charger uniquement les rangements liés à l'utilisateur connecté
@@ -129,8 +132,26 @@
 
         document.getElementById('addNiveauForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            handleFormWithImageUpload(this, 'api/add_niveau.php');
-        });
+            handleFormWithImageUploadDetailed(
+                this,
+                'api/add_niveau.php',
+                'photoType',
+                'photoFile',
+                function(data) {
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.className = 'alert alert-success';
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.display = 'block';
+                    document.getElementById('addNiveauForm').reset();
+                    resetPhotoFields();
+                },
+                function(errorMessage) {
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = errorMessage;
+                    messageDiv.style.display = 'block';
+                }
+            );
         });
 
         // Vérifier les permissions au démarrage

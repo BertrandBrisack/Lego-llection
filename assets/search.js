@@ -216,7 +216,7 @@ function displayResults(data) {
         return `
         <div class="set-card border rounded p-3 mb-3 bg-white shadow-sm" data-set-id="${escapeHtml(set.idObjet || '')}" tabindex="0" role="link" style="cursor:pointer;">
             <div class="set-header">
-                ${set.photo ? `<img src="${escapeHtml(resolveImagePath(set.photo))}" alt="${escapeHtml(set.nom || 'Set Lego')}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
+                ${getBestSetImagePath(set) ? `<img src="${escapeHtml(resolveImagePath(getBestSetImagePath(set)))}" alt="${escapeHtml(set.nom || 'Set Lego')}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
                 <div class="set-info">
                     <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px; flex-wrap: wrap;">
                         <h5 class="mb-2">${escapeHtml(set.nom)}</h5>
@@ -291,6 +291,10 @@ function displayResults(data) {
 }
 
 // Fonction pour échapper les caractères HTML
+function getBestSetImagePath(set) {
+    return set.photo || set.niveau_photo || set.rangement_photo || set.local_photo || set.site_photo || '';
+}
+
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');

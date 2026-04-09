@@ -181,8 +181,28 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label" for="editPhoto">URL de l'image</label>
-                                <input type="text" class="form-control" id="editPhoto" name="photo">
+                                <label class="form-label">Photo</label>
+                                <div class="photo-options mb-2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="photoType" id="editPhotoUrl" value="url" checked>
+                                        <label class="form-check-label" for="editPhotoUrl">URL de l'image</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="photoType" id="editPhotoUpload" value="upload">
+                                        <label class="form-check-label" for="editPhotoUpload">Uploader une image</label>
+                                    </div>
+                                </div>
+                                <div id="editPhotoUrlContainer">
+                                    <input type="text" class="form-control" id="editPhoto" name="photo" placeholder="https://exemple.com/image.jpg">
+                                    <div id="editPhotoPreview" class="mt-2" style="display: none;">
+                                        <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                        <small class="text-muted">Aperçu de l'image</small>
+                                    </div>
+                                </div>
+                                <div id="editPhotoUploadContainer" class="mt-2" style="display: none;">
+                                    <input type="file" class="form-control" id="editPhotoFile" name="photoFile" accept="image/*" capture="environment">
+                                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB)</div>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -205,6 +225,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/permissions.js"></script>
     <script src="assets/profile_menu.js"></script>
+    <script src="assets/image_upload.js"></script>
     <script src="assets/profile.js"></script>
 </body>
 </html>

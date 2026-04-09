@@ -54,9 +54,13 @@ try {
             borrower.prenomUtilisateur AS emprunteur_prenom,
             borrower.nomUtilisateur AS emprunteur_nom,
             n.nom AS niveau_nom,
+            n.photo AS niveau_photo,
             r.nom AS rangement_nom,
+            r.photo AS rangement_photo,
             lo.nom AS local_nom,
-            s.nom AS site_nom
+            lo.photo AS local_photo,
+            s.nom AS site_nom,
+            s.photo AS site_photo
         FROM Lego l
         LEFT JOIN Categorie c ON l.idCategorie = c.idCategorie
         LEFT JOIN Utilisateur owner ON l.idOwner = owner.idUtilisateur

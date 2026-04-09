@@ -17,6 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const editForm = document.getElementById('editStorageForm');
     if (editForm) {
         editForm.addEventListener('submit', submitStorageUpdate);
+        initializePhotoUploadWithIds('photoType', 'editPhotoUrlContainer', 'editPhotoUploadContainer', 'editPhoto', 'editPhotoFile');
     }
 
     const treeContainer = document.getElementById('storageTreeContainer');
@@ -227,7 +228,7 @@ function renderStorageTree(sites, counts) {
 
 function renderSiteNode(site) {
     const editKey = registerStorageItem('site', site.idSite, site);
-    const photo = site.photo ? `<div><strong>Photo :</strong> <span class="text-break">${escapeProfileHtml(site.photo)}</span></div>` : '';
+    const photo = site.photo ? renderStorageImage(site.photo) : '';
 
     return `
         <details class="storage-node border rounded p-3 bg-light" open>
@@ -238,7 +239,7 @@ function renderSiteNode(site) {
                     <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="site" data-id="${escapeProfileHtml(site.idSite)}">Supprimer</button>
                 </div>
             </summary>
-            <div class="mt-3 small text-muted">
+            <div class="mt-3 text-muted">
                 <div><strong>Adresse :</strong> ${escapeProfileHtml(site.adresse || '—')}</div>
                 <div><strong>Code postal / localité :</strong> ${escapeProfileHtml([site.codePostal, site.localite].filter(Boolean).join(' ') || '—')}</div>
                 ${photo}
@@ -252,7 +253,7 @@ function renderSiteNode(site) {
 
 function renderLocalNode(local) {
     const editKey = registerStorageItem('local', local.idLocal, local);
-    const photo = local.photo ? `<div><strong>Photo :</strong> <span class="text-break">${escapeProfileHtml(local.photo)}</span></div>` : '';
+    const photo = local.photo ? renderStorageImage(local.photo) : '';
 
     return `
         <details class="storage-node border rounded p-3 bg-white" open>
@@ -263,7 +264,7 @@ function renderLocalNode(local) {
                     <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="local" data-id="${escapeProfileHtml(local.idLocal)}">Supprimer</button>
                 </div>
             </summary>
-            <div class="mt-3 small text-muted">
+            <div class="mt-3 text-muted">
                 <div><strong>Infos :</strong> ${escapeProfileHtml(local.infoLocal || '—')}</div>
                 ${photo}
             </div>
@@ -276,7 +277,7 @@ function renderLocalNode(local) {
 
 function renderRangementNode(rangement) {
     const editKey = registerStorageItem('rangement', rangement.idRangement, rangement);
-    const photo = rangement.photo ? `<div><strong>Photo :</strong> <span class="text-break">${escapeProfileHtml(rangement.photo)}</span></div>` : '';
+    const photo = rangement.photo ? renderStorageImage(rangement.photo) : '';
 
     return `
         <details class="storage-node border rounded p-3" open>
@@ -287,7 +288,7 @@ function renderRangementNode(rangement) {
                     <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="rangement" data-id="${escapeProfileHtml(rangement.idRangement)}">Supprimer</button>
                 </div>
             </summary>
-            <div class="mt-3 small text-muted">
+            <div class="mt-3 text-muted">
                 <div><strong>Infos :</strong> ${escapeProfileHtml(rangement.infoRangement || '—')}</div>
                 ${photo}
             </div>
@@ -300,7 +301,7 @@ function renderRangementNode(rangement) {
 
 function renderNiveauNode(niveau) {
     const editKey = registerStorageItem('niveau', niveau.idNiveau, niveau);
-    const photo = niveau.photo ? `<div><strong>Photo :</strong> <span class="text-break">${escapeProfileHtml(niveau.photo)}</span></div>` : '';
+    const photo = niveau.photo ? renderStorageImage(niveau.photo) : '';
 
     return `
         <div class="storage-node border rounded p-3 bg-white">
@@ -311,7 +312,7 @@ function renderNiveauNode(niveau) {
                     <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="niveau" data-id="${escapeProfileHtml(niveau.idNiveau)}">Supprimer</button>
                 </div>
             </div>
-            <div class="mt-3 small text-muted">
+            <div class="mt-3 text-muted">
                 <div><strong>Infos :</strong> ${escapeProfileHtml(niveau.infoNiveau || '—')}</div>
                 ${photo}
             </div>
@@ -403,6 +404,7 @@ async function openEditModal(type, data) {
     document.getElementById('editItemId').value = getStorageId(type, data);
     document.getElementById('editNom').value = data.nom || '';
     document.getElementById('editPhoto').value = data.photo || '';
+    resetPhotoFieldsWithIds('photoType', 'editPhotoUrlContainer', 'editPhotoUploadContainer', 'editPhoto', 'editPhotoFile');
     document.getElementById('editAdresse').value = data.adresse || '';
     document.getElementById('editCodePostal').value = data.codePostal || '';
     document.getElementById('editLocalite').value = data.localite || '';
@@ -434,6 +436,39 @@ async function submitStorageUpdate(event) {
     const feedback = document.getElementById('editStorageFeedback');
     const submitButton = form.querySelector('button[type="submit"]');
     const formData = new FormData(form);
+
+    const selectedPhotoType = form.querySelector('input[name="photoType"]:checked');
+    if (selectedPhotoType && selectedPhotoType.value === 'upload') {
+        const fileInput = document.getElementById('editPhotoFile');
+        if (fileInput && fileInput.files.length > 0) {
+            try {
+                const uploadFormData = new FormData();
+                uploadFormData.append('photo', fileInput.files[0]);
+
+                const uploadResponse = await fetch('api/upload_image.php', {
+                    method: 'POST',
+                    body: uploadFormData,
+                    credentials: 'include'
+                });
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.message || 'Erreur lors de l\'upload de l\'image.');
+                }
+
+                formData.set('photo', uploadResult.path);
+            } catch (error) {
+                if (feedback) {
+                    feedback.innerHTML = `<div class="alert alert-danger py-2 mb-3">${escapeProfileHtml(error.message)}</div>`;
+                }
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Enregistrer';
+                }
+                return;
+            }
+        }
+    }
 
     if (submitButton) {
         submitButton.disabled = true;
@@ -479,6 +514,37 @@ async function submitStorageUpdate(event) {
             submitButton.disabled = false;
             submitButton.textContent = 'Enregistrer';
         }
+    }
+}
+
+function renderStorageImage(photo) {
+    const imageUrl = resolveImagePath(photo);
+    if (!imageUrl) {
+        return '<div class="text-muted"><strong>Photo :</strong> Aucune image disponible</div>';
+    }
+
+    return `
+        <div class="mb-3">
+            <div class="fw-bold mb-1">Photo :</div>
+            <img src="${escapeProfileHtml(imageUrl)}" alt="Photo de rangement" class="img-fluid rounded" style="max-height: 200px; width: auto;" onerror="this.parentNode.innerHTML='<div class=\'text-muted\'><strong>Photo :</strong> Aucune image disponible</div>'">
+        </div>
+    `;
+}
+
+function resolveImagePath(path) {
+    if (!path) {
+        return '';
+    }
+
+    const trimmed = String(path).trim();
+    if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+        return trimmed;
+    }
+
+    try {
+        return new URL(trimmed, window.location.href).href;
+    } catch {
+        return trimmed;
     }
 }
 

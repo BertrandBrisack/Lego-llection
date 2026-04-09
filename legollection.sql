@@ -16,6 +16,7 @@ CREATE TABLE Categorie (
     idCategorie VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoPlus VARCHAR(50) NOT NULL,
+    photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idCategorie)
 ) ENGINE=InnoDB;
 

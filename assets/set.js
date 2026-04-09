@@ -216,6 +216,10 @@ function renderSetDetails(set) {
                         </div>
                         <div id="photoUrlContainer">
                             <input type="text" class="form-control" id="photo" name="photo" placeholder="https://exemple.com/image.jpg" required>
+                            <div id="photoPreview" class="mt-2" style="display: none;">
+                                <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                <small class="text-muted">Aperçu de l'image</small>
+                            </div>
                         </div>
                         <div id="photoUploadContainer" style="display: none;">
                             <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*" capture="environment">

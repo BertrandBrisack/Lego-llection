@@ -32,9 +32,13 @@ try {
             u.prenomUtilisateur AS proprietaire_prenom,
             u.nomUtilisateur AS proprietaire_nom,
             n.nom as niveau_nom,
+            n.photo AS niveau_photo,
             r.nom as rangement_nom,
+            r.photo AS rangement_photo,
             lo.nom as local_nom,
-            s.nom as site_nom
+            lo.photo AS local_photo,
+            s.nom as site_nom,
+            s.photo AS site_photo
         FROM `Lego` l
         LEFT JOIN `Categorie` c ON l.idCategorie = c.idCategorie
         LEFT JOIN `Utilisateur` u ON l.idOwner = u.idUtilisateur

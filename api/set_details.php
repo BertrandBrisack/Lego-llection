@@ -39,17 +39,21 @@ try {
             n.idNiveau,
             n.nom AS niveau_nom,
             n.infoNiveau,
+            n.photo AS niveau_photo,
             r.idRangement,
             r.nom AS rangement_nom,
             r.infoRangement AS rangement_info,
+            r.photo AS rangement_photo,
             lo.idLocal,
             lo.nom AS local_nom,
             lo.infoLocal,
+            lo.photo AS local_photo,
             s.idSite,
             s.nom AS site_nom,
             s.adresse AS site_adresse,
             s.codePostal AS site_code_postal,
-            s.localite AS site_localite
+            s.localite AS site_localite,
+            s.photo AS site_photo
         FROM Lego l
         LEFT JOIN Categorie c ON l.idCategorie = c.idCategorie
         LEFT JOIN Utilisateur owner ON l.idOwner = owner.idUtilisateur

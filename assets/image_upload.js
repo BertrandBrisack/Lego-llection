@@ -24,8 +24,25 @@ function initializePhotoUploadWithIds(photoTypeName, urlContainerId, uploadConta
             document.getElementById(uploadContainerId).style.display = isUrl ? 'none' : 'block';
             document.getElementById(urlInputId).required = isUrl;
             document.getElementById(fileInputId).required = !isUrl;
+            
+            // Masquer l'aperçu quand on change de type
+            const preview = document.getElementById(urlInputId + 'Preview');
+            if (preview) {
+                preview.style.display = 'none';
+            }
         });
     });
+
+    // Ajouter un aperçu pour les URLs
+    const urlInput = document.getElementById(urlInputId);
+    if (urlInput) {
+        urlInput.addEventListener('input', function() {
+            updateImagePreview(this.value, urlInputId + 'Preview');
+        });
+        urlInput.addEventListener('blur', function() {
+            updateImagePreview(this.value, urlInputId + 'Preview');
+        });
+    }
 }
 
 /**
@@ -119,9 +136,52 @@ function resetPhotoFields() {
  * @param {string} fileInputId - ID du champ fichier
  */
 function resetPhotoFieldsWithIds(photoTypeName, urlContainerId, uploadContainerId, urlInputId, fileInputId) {
-    document.getElementById(`${photoTypeName.replace('Type', 'Url')}`).checked = true;
-    document.getElementById(urlContainerId).style.display = 'block';
-    document.getElementById(uploadContainerId).style.display = 'none';
-    document.getElementById(urlInputId).required = true;
-    document.getElementById(fileInputId).required = false;
+    const radios = document.querySelectorAll(`input[name="${photoTypeName}"]`);
+    if (radios.length > 0) {
+        const urlRadio = Array.from(radios).find(radio => radio.value === 'url' || radio.id.toLowerCase().includes('url'));
+        if (urlRadio) {
+            urlRadio.checked = true;
+        } else {
+            radios[0].checked = true;
+        }
+    }
+
+    const urlContainer = document.getElementById(urlContainerId);
+    const uploadContainer = document.getElementById(uploadContainerId);
+    const urlInput = document.getElementById(urlInputId);
+    const fileInput = document.getElementById(fileInputId);
+
+    if (urlContainer) {
+        urlContainer.style.display = 'block';
+    }
+    if (uploadContainer) {
+        uploadContainer.style.display = 'none';
+    }
+    if (urlInput) {
+        urlInput.required = true;
+    }
+    if (fileInput) {
+        fileInput.required = false;
+    }
+}
+
+function updateImagePreview(url, previewId) {
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+
+    if (!url || !url.trim()) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    const img = preview.querySelector('img');
+    if (img) {
+        img.src = url.trim();
+        img.onerror = function() {
+            preview.style.display = 'none';
+        };
+        img.onload = function() {
+            preview.style.display = 'block';
+        };
+    }
 }
