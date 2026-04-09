@@ -216,7 +216,7 @@ function displayResults(data) {
         return `
         <div class="set-card border rounded p-3 mb-3 bg-white shadow-sm" data-set-id="${escapeHtml(set.idObjet || '')}" tabindex="0" role="link" style="cursor:pointer;">
             <div class="set-header">
-                ${set.photo ? `<img src="${set.photo}" alt="${escapeHtml(set.nom || 'Set Lego')}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
+                ${set.photo ? `<img src="${escapeHtml(resolveImagePath(set.photo))}" alt="${escapeHtml(set.nom || 'Set Lego')}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
                 <div class="set-info">
                     <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px; flex-wrap: wrap;">
                         <h5 class="mb-2">${escapeHtml(set.nom)}</h5>
@@ -296,6 +296,21 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function resolveImagePath(path) {
+    if (!path) return '';
+    const trimmed = String(path).trim();
+
+    if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+        return trimmed;
+    }
+
+    try {
+        return new URL(trimmed, window.location.href).href;
+    } catch {
+        return trimmed;
+    }
 }
 
 // Fonction pour emprunter un set

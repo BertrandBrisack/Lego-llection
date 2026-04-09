@@ -35,7 +35,7 @@ CREATE TABLE Site (
     adresse VARCHAR(50) NOT NULL,
     codePostal VARCHAR(50) NOT NULL,
     localite VARCHAR(50) NOT NULL,
-    photo VARCHAR(50) NOT NULL,
+    photo VARCHAR(255) NOT NULL,
     idResponsable VARCHAR(50) NOT NULL,
     PRIMARY KEY (idSite),
     FOREIGN KEY (idResponsable)
@@ -48,7 +48,7 @@ CREATE TABLE Local (
     idSite VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoLocal VARCHAR(50) NOT NULL,
-    photo VARCHAR(50) NOT NULL,
+    photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idLocal),
     FOREIGN KEY (idSite)
         REFERENCES Site(idSite)
@@ -60,7 +60,7 @@ CREATE TABLE Rangement (
     idLocal VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoRangement VARCHAR(50) NOT NULL,
-    photo VARCHAR(50) NOT NULL,
+    photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idRangement),
     FOREIGN KEY (idLocal)
         REFERENCES Local(idLocal)
@@ -72,7 +72,7 @@ CREATE TABLE Niveau (
     idRangement VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoNiveau VARCHAR(50) NOT NULL,
-    photo VARCHAR(50) NOT NULL,
+    photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idNiveau),
     FOREIGN KEY (idRangement)
         REFERENCES Rangement(idRangement)
@@ -88,7 +88,7 @@ CREATE TABLE Lego (
     idOwner VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     infoRangement VARCHAR(50) NOT NULL,
-    photo VARCHAR(50) NOT NULL,
+    photo VARCHAR(255) NOT NULL,
     infoPlus VARCHAR(50) NOT NULL,
     date VARCHAR(50) NOT NULL,
     statut VARCHAR(50) NOT NULL,

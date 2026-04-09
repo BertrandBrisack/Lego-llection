@@ -194,13 +194,37 @@
 
         function renderSetImage(set) {
             const setName = escapeHtml(set.nom || 'Set Lego');
-            const placeholder = `<div class="card-img-top recent-set-placeholder">Image du set à venir</div>`;
+            const imageUrl = escapeHtml(resolveImagePath(set.photo));
 
             if (!set.photo) {
-                return placeholder;
+                return '<div class="card-img-top recent-set-placeholder">Image du set à venir</div>';
             }
 
-            return `<img src="${escapeHtml(set.photo)}" class="card-img-top recent-set-image" alt="${setName}" onerror="this.replaceWith(document.createRange().createContextualFragment('${placeholder.replace(/'/g, "&#39;")}'))">`;
+            return `<img src="${imageUrl}" class="card-img-top recent-set-image" alt="${setName}" onerror="handleSetImageError(this)">`;
+        }
+
+        function handleSetImageError(img) {
+            if (!img) return;
+            const placeholder = document.createElement('div');
+            placeholder.className = 'card-img-top recent-set-placeholder';
+            placeholder.textContent = 'Image du set à venir';
+            img.style.display = 'none';
+            img.insertAdjacentElement('afterend', placeholder);
+        }
+
+        function resolveImagePath(path) {
+            if (!path) return '';
+            const trimmed = String(path).trim();
+
+            if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+                return trimmed;
+            }
+
+            try {
+                return new URL(trimmed, window.location.href).href;
+            } catch {
+                return trimmed;
+            }
         }
 
         function escapeHtml(text) {
@@ -218,5 +242,6 @@
         checkUserPermissions();
         initializeProfileMenu();
     </script>
+    <script src="assets/image_lightbox.js"></script>
 </body>
 </html>

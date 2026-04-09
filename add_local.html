@@ -80,8 +80,20 @@
                 <textarea class="form-control" id="infoLocal" name="infoLocal"></textarea>
             </div>
             <div class="mb-3">
-                <label for="photo" class="form-label">Photo (URL)</label>
-                <input type="text" class="form-control" id="photo" name="photo">
+                <label class="form-label">Photo</label>
+                <div class="mb-2">
+                    <input type="radio" id="photo-url" name="photo-type" value="url" checked>
+                    <label for="photo-url" class="ms-1">URL d'image</label>
+                    <input type="radio" id="photo-upload" name="photo-type" value="upload" class="ms-3">
+                    <label for="photo-upload" class="ms-1">Uploader une image</label>
+                </div>
+                <div id="photo-url-container">
+                    <input type="text" class="form-control" id="photo-url-input" name="photo" placeholder="https://exemple.com/image.jpg">
+                </div>
+                <div id="photo-upload-container" style="display: none;">
+                    <input type="file" class="form-control" id="photo-file" name="photo-file" accept="image/*" capture="environment">
+                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB)</div>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Ajouter le Local</button>
         </form>
@@ -90,7 +102,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/permissions.js"></script>
     <script src="assets/profile_menu.js"></script>
+    <script src="assets/image_upload.js"></script>
     <script>
+        // Initialiser la gestion des photos
+        initializePhotoUpload(
+            'addLocalForm',
+            'photo-type',
+            'photo-url-container',
+            'photo-upload-container',
+            'photo-url-input',
+            'photo-file'
+        );
+
         // Charger uniquement les sites liés à l'utilisateur connecté
         fetch('api/sites.php?mine=1', { credentials: 'include' })
             .then(response => response.json())
@@ -106,31 +129,27 @@
                 }
             });
 
-        document.getElementById('addLocalForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            fetch('api/add_local.php', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                const messageDiv = document.getElementById('message');
-                if (data.success) {
+        document.getElementById('addLocalForm').addEventListener('submit', async function(e) {
+            await handleFormWithImageUpload(
+                e,
+                'api/add_local.php',
+                'photo-type',
+                'photo-file',
+                function(data) {
+                    const messageDiv = document.getElementById('message');
                     messageDiv.className = 'alert alert-success';
                     messageDiv.textContent = data.message;
                     messageDiv.style.display = 'block';
-                    this.reset();
-                } else {
+                    document.getElementById('addLocalForm').reset();
+                    resetPhotoFields('photo-type', 'photo-url-container', 'photo-upload-container', 'photo-url-input', 'photo-file');
+                },
+                function(errorMessage) {
+                    const messageDiv = document.getElementById('message');
                     messageDiv.className = 'alert alert-danger';
-                    messageDiv.textContent = data.message;
+                    messageDiv.textContent = errorMessage;
                     messageDiv.style.display = 'block';
                 }
-            })
-            .catch(error => {
-                document.getElementById('message').innerHTML = '<div class="alert alert-danger">Erreur de connexion.</div>';
-            });
+            );
         });
 
         // Vérifier les permissions au démarrage

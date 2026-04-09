@@ -61,6 +61,7 @@ async function loadSetDetails() {
 
         renderSetDetails(data.set);
         attachMoveSetHandler();
+        attachUpdateImageHandler();
     } catch (error) {
         console.error('Erreur lors du chargement du détail du set :', error);
         loadingIndicator.classList.add('d-none');
@@ -154,6 +155,31 @@ async function submitSetLocationUpdate(event) {
     }
 }
 
+function attachUpdateImageHandler() {
+    const form = document.getElementById('updateSetImageForm');
+    if (!form) {
+        return;
+    }
+
+    initializePhotoUpload();
+    form.removeEventListener('submit', submitSetImageUpdate);
+    form.addEventListener('submit', submitSetImageUpdate);
+}
+
+async function submitSetImageUpdate(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+
+    await handleFormWithImageUploadDetailed(form, 'api/update_set_image.php', 'photoType', 'photoFile', (data) => {
+        showMessage('success', data.message || 'Image du set mise à jour avec succès.');
+        form.reset();
+        resetPhotoFields();
+        loadSetDetails();
+    }, (message) => {
+        showMessage('danger', message || 'Impossible de mettre à jour l’image du set.');
+    });
+}
+
 function renderSetDetails(set) {
     const content = document.getElementById('setDetailContent');
     const ownerName = (set.proprietaire_login || [set.proprietaire_prenom, set.proprietaire_nom].filter(Boolean).join(' ').trim()).trim();
@@ -169,6 +195,39 @@ function renderSetDetails(set) {
             ${escapeHtml(`${niveau.nom || 'Sans nom'} (${niveau.rangement_nom || 'N/A'}, ${niveau.local_nom || 'N/A'}, ${niveau.site_nom || 'N/A'})`)}
         </option>
     `).join('');
+
+    const updateImageMarkup = canEditLocation ? `
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Modifier l'image du set</h2>
+                <form id="updateSetImageForm" class="row g-3 align-items-end">
+                    <input type="hidden" name="idObjet" value="${escapeHtml(set.idObjet || '')}">
+                    <div class="col-12">
+                        <label class="form-label">Photo</label>
+                        <div class="photo-options d-flex gap-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="photoType" id="photoUrl" value="url" checked>
+                                <label class="form-check-label" for="photoUrl">URL de l'image</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="photoType" id="photoUpload" value="upload">
+                                <label class="form-check-label" for="photoUpload">Uploader une image</label>
+                            </div>
+                        </div>
+                        <div id="photoUrlContainer">
+                            <input type="text" class="form-control" id="photo" name="photo" placeholder="https://exemple.com/image.jpg" required>
+                        </div>
+                        <div id="photoUploadContainer" style="display: none;">
+                            <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*" capture="environment">
+                            <div class="form-text">Formats acceptés: JPG, PNG, GIF, WebP. Taille max: 5MB.</div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Mettre à jour l'image</button>
+                    </div>
+                </form>
+            </div>
+        </div>` : '';
 
     const moveFormMarkup = canEditLocation ? `
         <div class="card mt-4">
@@ -222,6 +281,7 @@ function renderSetDetails(set) {
                             : '<p class="text-muted">Aucune information complémentaire disponible.</p>'}
 
                         ${moveFormMarkup}
+                        ${updateImageMarkup}
 
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -274,7 +334,22 @@ function renderSetImage(set) {
         return '<div class="set-hero-placeholder">Aucune image disponible</div>';
     }
 
-    return `<img src="${escapeHtml(set.photo)}" alt="${alt}" class="set-hero-image" onerror="this.outerHTML='&lt;div class=&quot;set-hero-placeholder&quot;&gt;Aucune image disponible&lt;/div&gt;'">`;
+    return `<img src="${escapeHtml(resolveImagePath(set.photo))}" alt="${alt}" class="set-hero-image" onerror="this.outerHTML='&lt;div class=&quot;set-hero-placeholder&quot;&gt;Aucune image disponible&lt;/div&gt;'">`;
+}
+
+function resolveImagePath(path) {
+    if (!path) return '';
+    const trimmed = String(path).trim();
+
+    if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+        return trimmed;
+    }
+
+    try {
+        return new URL(trimmed, window.location.href).href;
+    } catch {
+        return trimmed;
+    }
 }
 
 function getStatusClass(status) {
