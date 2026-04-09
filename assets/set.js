@@ -222,8 +222,8 @@ function renderSetDetails(set) {
                             </div>
                         </div>
                         <div id="photoUploadContainer" style="display: none;">
-                            <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*" capture="environment">
-                            <div class="form-text">Formats acceptés: JPG, PNG, GIF, WebP. Taille max: 5MB.</div>
+                            <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*">
+                            <div class="form-text">Formats acceptés: JPG, PNG, GIF, WebP. Taille max: 5MB. Choisissez depuis la galerie ou le gestionnaire de fichiers.</div>
                         </div>
                     </div>
                     <div class="col-12 text-end">

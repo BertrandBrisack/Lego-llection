@@ -18,6 +18,17 @@
         .storage-node {
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
         }
+
+        .storage-image-preview {
+            margin-top: 0.75rem;
+        }
+
+        .storage-image-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -200,8 +211,8 @@
                                     </div>
                                 </div>
                                 <div id="editPhotoUploadContainer" class="mt-2" style="display: none;">
-                                    <input type="file" class="form-control" id="editPhotoFile" name="photoFile" accept="image/*" capture="environment">
-                                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB)</div>
+                                    <input type="file" class="form-control" id="editPhotoFile" name="photoFile" accept="image/*">
+                                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB). Choisissez depuis la galerie ou le gestionnaire de fichiers.</div>
                                 </div>
                             </div>
                         </div>
