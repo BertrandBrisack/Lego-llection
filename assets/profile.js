@@ -1,6 +1,9 @@
 let currentProfileUser = null;
 let editStorageModalInstance = null;
 const storageRegistry = new Map();
+let ownerSites = [];
+let ownerLocals = [];
+let ownerRangements = [];
 
 window.addEventListener('DOMContentLoaded', () => {
     if (typeof checkUserPermissions === 'function') {
@@ -18,11 +21,61 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const treeContainer = document.getElementById('storageTreeContainer');
     if (treeContainer) {
+        treeContainer.removeEventListener('click', handleTreeActions);
         treeContainer.addEventListener('click', handleTreeActions);
+    }
+
+    const propertiesContainer = document.getElementById('userPropertiesSummary');
+    if (propertiesContainer) {
+        propertiesContainer.removeEventListener('click', handleSetActions);
+        propertiesContainer.addEventListener('click', handleSetActions);
     }
 
     loadProfilePage();
 });
+
+async function handleSetActions(event) {
+    const deleteBtn = event.target.closest('.js-delete-set');
+    if (!deleteBtn) {
+        return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const setId = deleteBtn.dataset.setId;
+    await handleDeleteSetFromProfile(setId);
+}
+
+async function handleDeleteSetFromProfile(setId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce set ? Cette action est irréversible.')) {
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('idObjet', setId);
+
+        const response = await fetch('api/delete_set.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || 'Impossible de supprimer ce set.');
+        }
+
+        if (currentProfileUser?.idUtilisateur) {
+            await loadOwnerProperties(currentProfileUser.idUtilisateur);
+        }
+    } catch (error) {
+        console.error('Erreur suppression set:', error);
+        alert(`Erreur : ${error.message || 'Impossible de supprimer ce set.'}`);
+    }
+}
 
 async function loadProfilePage() {
     try {
@@ -117,17 +170,24 @@ function renderOwnerSummary(data) {
                             <th>Catégorie</th>
                             <th>Statut</th>
                             <th>Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${properties.map(set => `
+                        ${properties.map(set => {
+                            const isBorrowed = String(set.statut || '').toLowerCase().includes('emprunt');
+                            return `
                             <tr>
                                 <td><a href="set.html?id=${encodeURIComponent(set.idObjet)}">${escapeProfileHtml(set.nom || 'Sans nom')}</a></td>
                                 <td>${escapeProfileHtml(set.categorie || '—')}</td>
                                 <td>${escapeProfileHtml(set.statut || '—')}</td>
                                 <td>${formatDisplayDate(set.date)}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-danger js-delete-set" data-set-id="${escapeProfileHtml(set.idObjet)}" ${isBorrowed ? 'disabled' : ''}>Supprimer</button>
+                                </td>
                             </tr>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -173,7 +233,10 @@ function renderSiteNode(site) {
         <details class="storage-node border rounded p-3 bg-light" open>
             <summary class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span><strong>🏢 Site :</strong> ${escapeProfileHtml(site.nom || 'Sans nom')}</span>
-                <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="site" data-id="${escapeProfileHtml(site.idSite)}">Supprimer</button>
+                </div>
             </summary>
             <div class="mt-3 small text-muted">
                 <div><strong>Adresse :</strong> ${escapeProfileHtml(site.adresse || '—')}</div>
@@ -195,7 +258,10 @@ function renderLocalNode(local) {
         <details class="storage-node border rounded p-3 bg-white" open>
             <summary class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span><strong>📍 Local :</strong> ${escapeProfileHtml(local.nom || 'Sans nom')}</span>
-                <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="local" data-id="${escapeProfileHtml(local.idLocal)}">Supprimer</button>
+                </div>
             </summary>
             <div class="mt-3 small text-muted">
                 <div><strong>Infos :</strong> ${escapeProfileHtml(local.infoLocal || '—')}</div>
@@ -216,7 +282,10 @@ function renderRangementNode(rangement) {
         <details class="storage-node border rounded p-3" open>
             <summary class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span><strong>🗂️ Rangement :</strong> ${escapeProfileHtml(rangement.nom || 'Sans nom')}</span>
-                <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="rangement" data-id="${escapeProfileHtml(rangement.idRangement)}">Supprimer</button>
+                </div>
             </summary>
             <div class="mt-3 small text-muted">
                 <div><strong>Infos :</strong> ${escapeProfileHtml(rangement.infoRangement || '—')}</div>
@@ -237,7 +306,10 @@ function renderNiveauNode(niveau) {
         <div class="storage-node border rounded p-3 bg-white">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span><strong>🧱 Niveau :</strong> ${escapeProfileHtml(niveau.nom || 'Sans nom')}</span>
-                <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary js-edit-storage" data-edit-key="${editKey}">Modifier</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger js-delete-storage" data-type="niveau" data-id="${escapeProfileHtml(niveau.idNiveau)}">Supprimer</button>
+                </div>
             </div>
             <div class="mt-3 small text-muted">
                 <div><strong>Infos :</strong> ${escapeProfileHtml(niveau.infoNiveau || '—')}</div>
@@ -247,22 +319,72 @@ function renderNiveauNode(niveau) {
     `;
 }
 
-function handleTreeActions(event) {
+async function handleTreeActions(event) {
     const editButton = event.target.closest('.js-edit-storage');
-    if (!editButton) {
+    if (editButton) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const editKey = editButton.dataset.editKey;
+        const item = storageRegistry.get(editKey);
+        if (!item) {
+            return;
+        }
+
+        await openEditModal(item.type, item.data);
         return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
+    const deleteButton = event.target.closest('.js-delete-storage');
+    if (deleteButton) {
+        event.preventDefault();
+        event.stopPropagation();
 
-    const editKey = editButton.dataset.editKey;
-    const item = storageRegistry.get(editKey);
-    if (!item) {
+        const type = deleteButton.dataset.type;
+        const id = deleteButton.dataset.id;
+        await handleDeleteStorage(type, id);
+        return;
+    }
+}
+
+async function handleDeleteStorage(type, id) {
+    const typeLabel = {
+        'site': 'ce site',
+        'local': 'ce local',
+        'rangement': 'ce rangement',
+        'niveau': 'ce niveau'
+    }[type] || 'cet élément';
+
+    const confirmMsg = `Êtes-vous sûr de vouloir supprimer ${typeLabel} ? Tous les éléments qu'il contient seront également supprimés. Cette action est irréversible.`;
+    if (!confirm(confirmMsg)) {
         return;
     }
 
-    openEditModal(item.type, item.data);
+    try {
+        const formData = new FormData();
+        formData.append('type', type);
+        formData.append('id', id);
+
+        const response = await fetch('api/delete_storage.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Impossible de supprimer cet élément.');
+        }
+
+        // Succès - recharger les propriétés
+        if (currentProfileUser?.idUtilisateur) {
+            await loadOwnerProperties(currentProfileUser.idUtilisateur);
+        }
+    } catch (error) {
+        console.error('Erreur suppression:', error);
+        alert(`Erreur : ${error.message || 'Impossible de supprimer cet élément.'}`);
+    }
 }
 
 function registerStorageItem(type, id, data) {
@@ -271,7 +393,7 @@ function registerStorageItem(type, id, data) {
     return key;
 }
 
-function openEditModal(type, data) {
+async function openEditModal(type, data) {
     const modalElement = document.getElementById('editStorageModal');
     if (!modalElement) {
         return;
@@ -290,9 +412,13 @@ function openEditModal(type, data) {
     document.getElementById('editStorageModalLabel').textContent = `Modifier ${capitalizeStorageType(type)}`;
     document.getElementById('editStorageFeedback').innerHTML = '';
 
-    document.querySelectorAll('[data-storage-group]').forEach(group => {
-        group.style.display = group.dataset.storageGroup === type ? 'block' : 'none';
+    document.querySelectorAll('[data-storage-group], [data-parent-group]').forEach(group => {
+        const isStorageGroup = group.dataset.storageGroup === type;
+        const isParentGroup = group.dataset.parentGroup === type;
+        group.style.display = (isStorageGroup || isParentGroup) ? 'block' : 'none';
     });
+
+    await populateParentSelects(type, data);
 
     if (!editStorageModalInstance) {
         editStorageModalInstance = new bootstrap.Modal(modalElement);
@@ -368,6 +494,95 @@ function getStorageId(type, data) {
             return data.idNiveau || '';
         default:
             return '';
+    }
+}
+
+async function populateParentSelects(type, data) {
+    const siteSelect = document.getElementById('editParentSite');
+    const localSelect = document.getElementById('editParentLocal');
+    const rangementSelect = document.getElementById('editParentRangement');
+
+    if (!siteSelect || !localSelect || !rangementSelect) {
+        return;
+    }
+
+    siteSelect.required = false;
+    localSelect.required = false;
+    rangementSelect.required = false;
+    siteSelect.disabled = true;
+    localSelect.disabled = true;
+    rangementSelect.disabled = true;
+
+    siteSelect.innerHTML = '<option value="">Chargement...</option>';
+    localSelect.innerHTML = '<option value="">Chargement...</option>';
+    rangementSelect.innerHTML = '<option value="">Chargement...</option>';
+
+    if (type === 'local') {
+        await ensureParentLists();
+        fillSelectOptions(siteSelect, ownerSites, item => item.idSite || '', item => `${item.nom || 'Sans nom'}${item.responsable_nom ? ' (' + item.responsable_nom + ')' : ''}`, data.idSite || '');
+        siteSelect.required = true;
+        siteSelect.disabled = ownerSites.length === 0;
+    } else if (type === 'rangement') {
+        await ensureParentLists();
+        fillSelectOptions(localSelect, ownerLocals, item => item.idLocal || '', item => `${item.nom || 'Sans nom'} (${item.site_nom || 'Site inconnu'})`, data.idLocal || '');
+        localSelect.required = true;
+        localSelect.disabled = ownerLocals.length === 0;
+    } else if (type === 'niveau') {
+        await ensureParentLists();
+        fillSelectOptions(rangementSelect, ownerRangements, item => item.idRangement || '', item => `${item.nom || 'Sans nom'} (${item.local_nom || 'Local inconnu'} / ${item.site_nom || 'Site inconnu'})`, data.idRangement || '');
+        rangementSelect.required = true;
+        rangementSelect.disabled = ownerRangements.length === 0;
+    }
+}
+
+function fillSelectOptions(select, items, valueFn, labelFn, selectedValue) {
+    if (!select) {
+        return;
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+        select.innerHTML = '<option value="">Aucune option disponible</option>';
+        return;
+    }
+
+    select.innerHTML = '<option value="">Sélectionnez...</option>';
+    items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = valueFn(item);
+        option.textContent = labelFn(item);
+        if (String(option.value) === String(selectedValue)) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+}
+
+async function ensureParentLists() {
+    if (ownerSites.length > 0 && ownerLocals.length > 0 && ownerRangements.length > 0) {
+        return;
+    }
+
+    try {
+        const [sitesResponse, localsResponse, rangementsResponse] = await Promise.all([
+            fetch('api/sites.php?mine=1', { credentials: 'include' }),
+            fetch('api/locals.php?mine=1', { credentials: 'include' }),
+            fetch('api/rangements.php?mine=1', { credentials: 'include' })
+        ]);
+
+        const [sitesData, localsData, rangementsData] = await Promise.all([
+            sitesResponse.json(),
+            localsResponse.json(),
+            rangementsResponse.json()
+        ]);
+
+        ownerSites = Array.isArray(sitesData.sites) ? sitesData.sites : [];
+        ownerLocals = Array.isArray(localsData.locals) ? localsData.locals : [];
+        ownerRangements = Array.isArray(rangementsData.rangements) ? rangementsData.rangements : [];
+    } catch (error) {
+        console.error('Erreur chargement des listes parentes :', error);
+        ownerSites = ownerSites || [];
+        ownerLocals = ownerLocals || [];
+        ownerRangements = ownerRangements || [];
     }
 }
 

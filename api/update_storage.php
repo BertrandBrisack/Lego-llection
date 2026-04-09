@@ -80,11 +80,20 @@ try {
             $nom = trim($_POST['nom'] ?? '');
             $infoLocal = trim($_POST['infoLocal'] ?? '');
             $photo = trim($_POST['photo'] ?? '');
+            $parentSite = trim($_POST['parentSite'] ?? '');
 
             if ($nom === '') {
                 echo json_encode([
                     'success' => false,
                     'message' => 'Le nom du local est obligatoire.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            if ($parentSite === '') {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vous devez sélectionner un site parent pour ce local.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -101,19 +110,40 @@ try {
                 exit;
             }
 
-            $updateStmt = $pdo->prepare('UPDATE Local SET nom = ?, infoLocal = ?, photo = ? WHERE idLocal = ?');
-            $updateStmt->execute([$nom, $infoLocal, $photo, $id]);
+            $siteOwnershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Site WHERE idSite = ? AND idResponsable = ?');
+            $siteOwnershipStmt->execute([$parentSite, $userId]);
+
+            if ((int) $siteOwnershipStmt->fetchColumn() === 0) {
+                http_response_code(403);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez déplacer ce local que vers un site que vous possédez.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $updateStmt = $pdo->prepare('UPDATE Local SET idSite = ?, nom = ?, infoLocal = ?, photo = ? WHERE idLocal = ?');
+            $updateStmt->execute([$parentSite, $nom, $infoLocal, $photo, $id]);
             break;
 
         case 'rangement':
             $nom = trim($_POST['nom'] ?? '');
             $infoRangement = trim($_POST['infoRangement'] ?? '');
             $photo = trim($_POST['photo'] ?? '');
+            $parentLocal = trim($_POST['parentLocal'] ?? '');
 
             if ($nom === '') {
                 echo json_encode([
                     'success' => false,
                     'message' => 'Le nom du rangement est obligatoire.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            if ($parentLocal === '') {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vous devez sélectionner un local parent pour ce rangement.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -130,19 +160,40 @@ try {
                 exit;
             }
 
-            $updateStmt = $pdo->prepare('UPDATE Rangement SET nom = ?, infoRangement = ?, photo = ? WHERE idRangement = ?');
-            $updateStmt->execute([$nom, $infoRangement, $photo, $id]);
+            $localOwnershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Local l JOIN Site s ON l.idSite = s.idSite WHERE l.idLocal = ? AND s.idResponsable = ?');
+            $localOwnershipStmt->execute([$parentLocal, $userId]);
+
+            if ((int) $localOwnershipStmt->fetchColumn() === 0) {
+                http_response_code(403);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez déplacer ce rangement que vers un local que vous possédez.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $updateStmt = $pdo->prepare('UPDATE Rangement SET idLocal = ?, nom = ?, infoRangement = ?, photo = ? WHERE idRangement = ?');
+            $updateStmt->execute([$parentLocal, $nom, $infoRangement, $photo, $id]);
             break;
 
         case 'niveau':
             $nom = trim($_POST['nom'] ?? '');
             $infoNiveau = trim($_POST['infoNiveau'] ?? '');
             $photo = trim($_POST['photo'] ?? '');
+            $parentRangement = trim($_POST['parentRangement'] ?? '');
 
             if ($nom === '') {
                 echo json_encode([
                     'success' => false,
                     'message' => 'Le nom du niveau est obligatoire.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            if ($parentRangement === '') {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vous devez sélectionner un rangement parent pour ce niveau.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -159,8 +210,20 @@ try {
                 exit;
             }
 
-            $updateStmt = $pdo->prepare('UPDATE Niveau SET nom = ?, infoNiveau = ?, photo = ? WHERE idNiveau = ?');
-            $updateStmt->execute([$nom, $infoNiveau, $photo, $id]);
+            $rangementOwnershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Rangement r JOIN Local l ON r.idLocal = l.idLocal JOIN Site s ON l.idSite = s.idSite WHERE r.idRangement = ? AND s.idResponsable = ?');
+            $rangementOwnershipStmt->execute([$parentRangement, $userId]);
+
+            if ((int) $rangementOwnershipStmt->fetchColumn() === 0) {
+                http_response_code(403);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez déplacer ce niveau que vers un rangement que vous possédez.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            $updateStmt = $pdo->prepare('UPDATE Niveau SET idRangement = ?, nom = ?, infoNiveau = ?, photo = ? WHERE idNiveau = ?');
+            $updateStmt->execute([$parentRangement, $nom, $infoNiveau, $photo, $id]);
             break;
 
         default:

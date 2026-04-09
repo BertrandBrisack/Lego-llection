@@ -52,7 +52,7 @@ CREATE TABLE Local (
     PRIMARY KEY (idLocal),
     FOREIGN KEY (idSite)
         REFERENCES Site(idSite)
-        ON UPDATE RESTRICT ON DELETE RESTRICT
+        ON UPDATE RESTRICT ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE Rangement (
@@ -64,7 +64,7 @@ CREATE TABLE Rangement (
     PRIMARY KEY (idRangement),
     FOREIGN KEY (idLocal)
         REFERENCES Local(idLocal)
-        ON UPDATE RESTRICT ON DELETE RESTRICT
+        ON UPDATE RESTRICT ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE Niveau (
@@ -76,14 +76,14 @@ CREATE TABLE Niveau (
     PRIMARY KEY (idNiveau),
     FOREIGN KEY (idRangement)
         REFERENCES Rangement(idRangement)
-        ON UPDATE RESTRICT ON DELETE RESTRICT
+        ON UPDATE RESTRICT ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
 
 CREATE TABLE Lego (
     idObjet VARCHAR(50) NOT NULL,
-    idNiveau VARCHAR(50) NOT NULL,
+    idNiveau VARCHAR(50),
     idCategorie VARCHAR(50) NOT NULL,
     idOwner VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
@@ -109,5 +109,5 @@ CREATE TABLE Lego (
 
     FOREIGN KEY (idNiveau)
         REFERENCES Niveau(idNiveau)
-        ON UPDATE RESTRICT ON DELETE RESTRICT
+        ON UPDATE RESTRICT ON DELETE SET NULL
 ) ENGINE=InnoDB;

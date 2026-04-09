@@ -1,3 +1,7 @@
+let currentUser = null;
+let availableNiveaux = [];
+let currentSetId = null;
+
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof checkUserPermissions === 'function') {
         checkUserPermissions();
@@ -7,8 +11,21 @@ document.addEventListener('DOMContentLoaded', function () {
         initializeProfileMenu();
     }
 
-    loadSetDetails();
+    loadCurrentUser().then(loadSetDetails);
 });
+
+async function loadCurrentUser() {
+    try {
+        const response = await fetch('api/current_user.php', { credentials: 'include' });
+        const data = await response.json();
+        currentUser = data.connected && data.user ? data.user : null;
+        return currentUser;
+    } catch (error) {
+        console.error('Erreur lors du chargement de l’utilisateur :', error);
+        currentUser = null;
+        return null;
+    }
+}
 
 async function loadSetDetails() {
     const loadingIndicator = document.getElementById('loadingIndicator');
@@ -34,12 +51,106 @@ async function loadSetDetails() {
             return;
         }
 
+        currentSetId = data.set.idObjet || null;
+
+        if (currentUser && currentUser.role === 'owner' && String(currentUser.idUtilisateur) === String(data.set.idOwner)) {
+            availableNiveaux = await fetchOwnerNiveaux();
+        } else {
+            availableNiveaux = [];
+        }
+
         renderSetDetails(data.set);
+        attachMoveSetHandler();
     } catch (error) {
         console.error('Erreur lors du chargement du détail du set :', error);
         loadingIndicator.classList.add('d-none');
         content.innerHTML = '';
         showMessage('danger', 'Une erreur est survenue lors du chargement du set.');
+    }
+}
+
+async function fetchOwnerNiveaux() {
+    try {
+        const response = await fetch('api/niveaux.php?mine=1', { credentials: 'include' });
+        const data = await response.json();
+        return data.success && Array.isArray(data.niveaux) ? data.niveaux : [];
+    } catch (error) {
+        console.error('Erreur lors du chargement des niveaux :', error);
+        return [];
+    }
+}
+
+function attachMoveSetHandler() {
+    const form = document.getElementById('moveSetForm');
+    if (form) {
+        form.removeEventListener('submit', submitSetLocationUpdate);
+        form.addEventListener('submit', submitSetLocationUpdate);
+    }
+
+    const deleteBtn = document.getElementById('deleteSetBtn');
+    if (deleteBtn) {
+        deleteBtn.removeEventListener('click', handleDeleteSet);
+        deleteBtn.addEventListener('click', handleDeleteSet);
+    }
+}
+
+async function handleDeleteSet(event) {
+    event.preventDefault();
+    const setId = event.currentTarget.dataset.setId;
+
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce set ? Cette action est irréversible.')) {
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('idObjet', setId);
+
+        const response = await fetch('api/delete_set.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Impossible de supprimer le set.');
+        }
+
+        showMessage('success', 'Set supprimé avec succès. Redirection...');
+        window.setTimeout(() => {
+            window.location.href = 'collection.html?view=mine';
+        }, 1500);
+    } catch (error) {
+        console.error('Erreur lors de la suppression du set :', error);
+        showMessage('danger', escapeHtml(error.message || 'Impossible de supprimer le set.'));
+    }
+}
+
+async function submitSetLocationUpdate(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const feedback = document.getElementById('messageContainer');
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('api/update_set_location.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Impossible de déplacer le set.');
+        }
+
+        showMessage('success', 'Emplacement du set mis à jour.');
+        await loadSetDetails();
+    } catch (error) {
+        console.error('Erreur lors du déplacement du set :', error);
+        showMessage('danger', escapeHtml(error.message || 'Impossible de déplacer le set.'));
     }
 }
 
@@ -52,6 +163,41 @@ function renderSetDetails(set) {
         set.site_adresse,
         [set.site_code_postal, set.site_localite].filter(Boolean).join(' ')
     ].filter(Boolean).join(', ');
+    const canEditLocation = currentUser && currentUser.role === 'owner' && String(currentUser.idUtilisateur) === String(set.idOwner);
+    const niveauOptions = availableNiveaux.map(niveau => `
+        <option value="${escapeHtml(niveau.idNiveau)}" ${String(niveau.idNiveau) === String(set.idNiveau) ? 'selected' : ''}>
+            ${escapeHtml(`${niveau.nom || 'Sans nom'} (${niveau.rangement_nom || 'N/A'}, ${niveau.local_nom || 'N/A'}, ${niveau.site_nom || 'N/A'})`)}
+        </option>
+    `).join('');
+
+    const moveFormMarkup = canEditLocation ? `
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Modifier l'emplacement du set</h2>
+                <form id="moveSetForm" class="row g-3 align-items-end">
+                    <input type="hidden" name="idObjet" value="${escapeHtml(set.idObjet || '')}">
+                    <div class="col-md-8">
+                        <label class="form-label" for="moveSetNiveau">Niveau</label>
+                        <select id="moveSetNiveau" name="idNiveau" class="form-select" ${availableNiveaux.length === 0 ? 'disabled' : 'required'}>
+                            <option value="_none" ${!set.idNiveau ? 'selected' : ''}>Aucun emplacement</option>
+                            ${niveauOptions}
+                        </select>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button type="submit" class="btn btn-primary" ${availableNiveaux.length === 0 ? 'disabled' : ''}>Déplacer le set</button>
+                    </div>
+                </form>
+                ${availableNiveaux.length === 0 ? '<p class="text-muted mt-3 mb-0">Vous n’avez aucun niveau disponible pour déplacer ce set.</p>' : ''}
+            </div>
+        </div>
+        <div class="card mt-4 border-danger">
+            <div class="card-body">
+                <h2 class="h6 mb-3 text-danger">Zone dangereuse</h2>
+                <p class="small text-muted mb-3">Supprimer ce set de manière permanente.</p>
+                <button type="button" class="btn btn-outline-danger" id="deleteSetBtn" data-set-id="${escapeHtml(set.idObjet || '')}" ${String(set.statut || '').toLowerCase().includes('emprunt') ? 'disabled' : ''}>Supprimer le set</button>
+                ${String(set.statut || '').toLowerCase().includes('emprunt') ? '<p class="small text-muted mt-2 mb-0">Impossible de supprimer un set emprunté.</p>' : ''}
+            </div>
+        </div>    ` : '';
 
     document.title = `${set.nom || 'Détail du set'} - Lego'llection`;
 
@@ -74,6 +220,8 @@ function renderSetDetails(set) {
                         ${set.infoPlus
                             ? `<p class="lead">${escapeHtml(set.infoPlus)}</p>`
                             : '<p class="text-muted">Aucune information complémentaire disponible.</p>'}
+
+                        ${moveFormMarkup}
 
                         <div class="row g-3">
                             <div class="col-md-6">

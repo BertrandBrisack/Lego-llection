@@ -66,9 +66,10 @@
         <div id="message" class="alert" style="display: none;"></div>
         <form id="addSetForm">
             <div class="mb-3">
-                <label for="niveau" class="form-label">Niveau</label>
-                <select class="form-control" id="niveau" name="niveau" required>
-                    <option value="">Sélectionnez un niveau</option>
+                <label for="niveau" class="form-label">Niveau (facultatif)</label>
+                <select class="form-control" id="niveau" name="niveau">
+                    <option value="_none">Aucun emplacement</option>
+                    <option value="" disabled selected>Sélectionnez un niveau</option>
                 </select>
                 <input type="hidden" id="idNiveau" name="idNiveau">
             </div>
@@ -140,7 +141,7 @@
             });
 
         document.getElementById('niveau').addEventListener('change', function() {
-            document.getElementById('idNiveau').value = this.value;
+            document.getElementById('idNiveau').value = this.value === '_none' ? '' : this.value;
         });
 
         document.getElementById('addSetForm').addEventListener('submit', function(e) {

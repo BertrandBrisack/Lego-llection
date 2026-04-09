@@ -101,6 +101,7 @@ try {
             if (!isset($sitesMap[$siteId]['locals'][$localId])) {
                 $sitesMap[$siteId]['locals'][$localId] = [
                     'idLocal' => $localId,
+                    'idSite' => $siteId,
                     'nom' => $row['local_nom'],
                     'infoLocal' => $row['infoLocal'],
                     'photo' => $row['local_photo'],
@@ -115,6 +116,7 @@ try {
                 if (!isset($sitesMap[$siteId]['locals'][$localId]['rangements'][$rangementId])) {
                     $sitesMap[$siteId]['locals'][$localId]['rangements'][$rangementId] = [
                         'idRangement' => $rangementId,
+                        'idLocal' => $localId,
                         'nom' => $row['rangement_nom'],
                         'infoRangement' => $row['infoRangement'],
                         'photo' => $row['rangement_photo'],
@@ -129,6 +131,7 @@ try {
                     if (!isset($sitesMap[$siteId]['locals'][$localId]['rangements'][$rangementId]['niveaux'][$niveauId])) {
                         $sitesMap[$siteId]['locals'][$localId]['rangements'][$rangementId]['niveaux'][$niveauId] = [
                             'idNiveau' => $niveauId,
+                            'idRangement' => $rangementId,
                             'nom' => $row['niveau_nom'],
                             'infoNiveau' => $row['infoNiveau'],
                             'photo' => $row['niveau_photo']
