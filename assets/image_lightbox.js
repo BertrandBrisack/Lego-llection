@@ -116,7 +116,7 @@
         injectLightboxStyles();
 
         document.body.addEventListener('click', function (event) {
-            const target = event.target.closest('img.set-image, img.recent-set-image, img.set-hero-image');
+            const target = event.target.closest('img.set-image, img.recent-set-image, img.set-hero-image, img.storage-level-image');
             if (!target) return;
 
             event.preventDefault();

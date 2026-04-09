@@ -43,6 +43,17 @@ if ($type === '' || $id === '') {
     exit;
 }
 
+// Fonction pour supprimer un fichier local d'image
+function deleteLocalImage($path) {
+    if (!$path || preg_match('/^(https?:\/\/|\/)/', $path)) {
+        return; // URL externe ou chemin absolu, on ne supprime rien
+    }
+    $filePath = __DIR__ . '/../' . $path;
+    if (file_exists($filePath)) {
+        @unlink($filePath);
+    }
+}
+
 try {
     switch ($type) {
         case 'site':
@@ -60,16 +71,22 @@ try {
                 exit;
             }
 
-            $ownershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Site WHERE idSite = ? AND idResponsable = ?');
+            $ownershipStmt = $pdo->prepare('SELECT COUNT(*), photo FROM Site WHERE idSite = ? AND idResponsable = ? LIMIT 1');
             $ownershipStmt->execute([$id, $userId]);
+            $result = $ownershipStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ((int) $ownershipStmt->fetchColumn() === 0) {
+            if ((int) ($result['COUNT(*)'] ?? 0) === 0) {
                 http_response_code(403);
                 echo json_encode([
                     'success' => false,
                     'message' => 'Vous ne pouvez modifier que vos propres sites.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
+            }
+
+            // Supprimer l'ancienne image si elle est locale
+            if ($result['photo'] && $result['photo'] !== $photo) {
+                deleteLocalImage($result['photo']);
             }
 
             $updateStmt = $pdo->prepare('UPDATE Site SET nom = ?, adresse = ?, codePostal = ?, localite = ?, photo = ? WHERE idSite = ?');
@@ -98,10 +115,11 @@ try {
                 exit;
             }
 
-            $ownershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Local l JOIN Site s ON l.idSite = s.idSite WHERE l.idLocal = ? AND s.idResponsable = ?');
+            $ownershipStmt = $pdo->prepare('SELECT COUNT(*), photo FROM Local l JOIN Site s ON l.idSite = s.idSite WHERE l.idLocal = ? AND s.idResponsable = ? LIMIT 1');
             $ownershipStmt->execute([$id, $userId]);
+            $result = $ownershipStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ((int) $ownershipStmt->fetchColumn() === 0) {
+            if ((int) ($result['COUNT(*)'] ?? 0) === 0) {
                 http_response_code(403);
                 echo json_encode([
                     'success' => false,
@@ -120,6 +138,11 @@ try {
                     'message' => 'Vous ne pouvez déplacer ce local que vers un site que vous possédez.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
+            }
+
+            // Supprimer l'ancienne image si elle est locale
+            if ($result['photo'] && $result['photo'] !== $photo) {
+                deleteLocalImage($result['photo']);
             }
 
             $updateStmt = $pdo->prepare('UPDATE Local SET idSite = ?, nom = ?, infoLocal = ?, photo = ? WHERE idLocal = ?');
@@ -148,10 +171,11 @@ try {
                 exit;
             }
 
-            $ownershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Rangement r JOIN Local l ON r.idLocal = l.idLocal JOIN Site s ON l.idSite = s.idSite WHERE r.idRangement = ? AND s.idResponsable = ?');
+            $ownershipStmt = $pdo->prepare('SELECT COUNT(*), photo FROM Rangement r JOIN Local l ON r.idLocal = l.idLocal JOIN Site s ON l.idSite = s.idSite WHERE r.idRangement = ? AND s.idResponsable = ? LIMIT 1');
             $ownershipStmt->execute([$id, $userId]);
+            $result = $ownershipStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ((int) $ownershipStmt->fetchColumn() === 0) {
+            if ((int) ($result['COUNT(*)'] ?? 0) === 0) {
                 http_response_code(403);
                 echo json_encode([
                     'success' => false,
@@ -170,6 +194,11 @@ try {
                     'message' => 'Vous ne pouvez déplacer ce rangement que vers un local que vous possédez.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
+            }
+
+            // Supprimer l'ancienne image si elle est locale
+            if ($result['photo'] && $result['photo'] !== $photo) {
+                deleteLocalImage($result['photo']);
             }
 
             $updateStmt = $pdo->prepare('UPDATE Rangement SET idLocal = ?, nom = ?, infoRangement = ?, photo = ? WHERE idRangement = ?');
@@ -198,10 +227,11 @@ try {
                 exit;
             }
 
-            $ownershipStmt = $pdo->prepare('SELECT COUNT(*) FROM Niveau n JOIN Rangement r ON n.idRangement = r.idRangement JOIN Local l ON r.idLocal = l.idLocal JOIN Site s ON l.idSite = s.idSite WHERE n.idNiveau = ? AND s.idResponsable = ?');
+            $ownershipStmt = $pdo->prepare('SELECT COUNT(*), photo FROM Niveau n JOIN Rangement r ON n.idRangement = r.idRangement JOIN Local l ON r.idLocal = l.idLocal JOIN Site s ON l.idSite = s.idSite WHERE n.idNiveau = ? AND s.idResponsable = ? LIMIT 1');
             $ownershipStmt->execute([$id, $userId]);
+            $result = $ownershipStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ((int) $ownershipStmt->fetchColumn() === 0) {
+            if ((int) ($result['COUNT(*)'] ?? 0) === 0) {
                 http_response_code(403);
                 echo json_encode([
                     'success' => false,
@@ -220,6 +250,11 @@ try {
                     'message' => 'Vous ne pouvez déplacer ce niveau que vers un rangement que vous possédez.'
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
+            }
+
+            // Supprimer l'ancienne image si elle est locale
+            if ($result['photo'] && $result['photo'] !== $photo) {
+                deleteLocalImage($result['photo']);
             }
 
             $updateStmt = $pdo->prepare('UPDATE Niveau SET idRangement = ?, nom = ?, infoNiveau = ?, photo = ? WHERE idNiveau = ?');

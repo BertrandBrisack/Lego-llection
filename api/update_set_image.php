@@ -50,8 +50,19 @@ if ($photo === '') {
     exit;
 }
 
+// Fonction pour supprimer un fichier local d'image
+function deleteLocalImage($path) {
+    if (!$path || preg_match('/^(https?:\/\/|\/)/', $path)) {
+        return; // URL externe ou chemin absolu, on ne supprime rien
+    }
+    $filePath = __DIR__ . '/../' . $path;
+    if (file_exists($filePath)) {
+        @unlink($filePath);
+    }
+}
+
 try {
-    $stmt = $pdo->prepare('SELECT idOwner FROM Lego WHERE idObjet = ?');
+    $stmt = $pdo->prepare('SELECT idOwner, photo FROM Lego WHERE idObjet = ?');
     $stmt->execute([$idObjet]);
     $set = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -62,6 +73,11 @@ try {
             'message' => 'Vous ne pouvez modifier que vos propres sets.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
+    }
+
+    // Supprimer l'ancienne image si elle est locale
+    if ($set['photo'] && $set['photo'] !== $photo) {
+        deleteLocalImage($set['photo']);
     }
 
     $updateStmt = $pdo->prepare('UPDATE Lego SET photo = ? WHERE idObjet = ?');

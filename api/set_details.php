@@ -30,6 +30,7 @@ try {
             c.idCategorie,
             c.nom AS categorie_nom,
             c.infoPlus AS categorie_info_plus,
+            c.photo AS categorie_photo,
             owner.prenomUtilisateur AS proprietaire_prenom,
             owner.nomUtilisateur AS proprietaire_nom,
             owner.login AS proprietaire_login,

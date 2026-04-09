@@ -184,7 +184,6 @@ function renderSetDetails(set) {
     const content = document.getElementById('setDetailContent');
     const ownerName = (set.proprietaire_login || [set.proprietaire_prenom, set.proprietaire_nom].filter(Boolean).join(' ').trim()).trim();
     const borrowerName = (set.emprunteur_login || [set.emprunteur_prenom, set.emprunteur_nom].filter(Boolean).join(' ').trim()).trim();
-    const locationPath = [set.site_nom, set.local_nom, set.rangement_nom, set.niveau_nom].filter(Boolean).join(' > ');
     const siteAddress = [
         set.site_adresse,
         [set.site_code_postal, set.site_localite].filter(Boolean).join(' ')
@@ -292,7 +291,15 @@ function renderSetDetails(set) {
                                 <div class="border rounded-3 p-3 h-100">
                                     <h2 class="h6">Informations générales</h2>
                                     <ul class="list-unstyled detail-list mb-0 small">
-                                        <li><strong>Collection :</strong> ${escapeHtml(set.categorie_nom || 'Non renseignée')}</li>
+                                        <li class="d-flex align-items-center gap-2">
+                                            <strong>Collection :</strong>
+                                            <span>${escapeHtml(set.categorie_nom || 'Non renseignée')}</span>
+                                            ${set.categorie_photo ? `
+                                                <img src="${escapeHtml(resolveImagePath(set.categorie_photo))}"
+                                                     alt="Image de la collection ${escapeHtml(set.categorie_nom || '')}"
+                                                     class="collection-badge-image rounded">
+                                            ` : ''}
+                                        </li>
                                         <li><strong>Date d\'ajout :</strong> ${escapeHtml(formatDate(set.date) || 'Non renseignée')}</li>
                                         <li><strong>Propriétaire :</strong> ${escapeHtml(ownerName || 'Non renseigné')}</li>
                                         <li><strong>Emprunteur :</strong> ${escapeHtml(borrowerName || 'Aucun')}</li>
@@ -302,12 +309,8 @@ function renderSetDetails(set) {
 
                             <div class="col-md-6">
                                 <div class="border rounded-3 p-3 h-100">
-                                    <h2 class="h6">Emplacement</h2>
-                                    <ul class="list-unstyled detail-list mb-0 small">
-                                        <li><strong>Chemin :</strong> ${escapeHtml(locationPath || 'Non renseigné')}</li>
-                                        <li><strong>Site :</strong> ${escapeHtml(set.site_nom || 'Non renseigné')}</li>
-                                        <li><strong>Adresse :</strong> ${escapeHtml(siteAddress || 'Non renseignée')}</li>
-                                    </ul>
+                                    <h2 class="h6">Emplacement détaillé</h2>
+                                    ${renderStorageHierarchy(set)}
                                 </div>
                             </div>
 
@@ -339,6 +342,97 @@ function renderSetImage(set) {
     }
 
     return `<img src="${escapeHtml(resolveImagePath(set.photo))}" alt="${alt}" class="set-hero-image" onerror="this.outerHTML='&lt;div class=&quot;set-hero-placeholder&quot;&gt;Aucune image disponible&lt;/div&gt;'">`;
+}
+
+function renderStorageHierarchy(set) {
+    const hierarchy = [];
+
+    // Site
+    if (set.site_nom) {
+        hierarchy.push({
+            type: 'site',
+            name: set.site_nom,
+            image: set.site_photo,
+            address: [set.site_adresse, [set.site_code_postal, set.site_localite].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+            info: null
+        });
+    }
+
+    // Local
+    if (set.local_nom) {
+        hierarchy.push({
+            type: 'local',
+            name: set.local_nom,
+            image: set.local_photo,
+            address: null,
+            info: set.infoLocal
+        });
+    }
+
+    // Rangement
+    if (set.rangement_nom) {
+        hierarchy.push({
+            type: 'rangement',
+            name: set.rangement_nom,
+            image: set.rangement_photo,
+            address: null,
+            info: set.rangement_info
+        });
+    }
+
+    // Niveau
+    if (set.niveau_nom) {
+        hierarchy.push({
+            type: 'niveau',
+            name: set.niveau_nom,
+            image: set.niveau_photo,
+            address: null,
+            info: set.infoNiveau
+        });
+    }
+
+    if (hierarchy.length === 0) {
+        return '<p class="text-muted mb-0 small">Aucun emplacement défini</p>';
+    }
+
+    return `
+        <div class="storage-hierarchy">
+            ${hierarchy.map((item, index) => `
+                <div class="storage-level ${index < hierarchy.length - 1 ? 'mb-3' : ''}">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="storage-image-container">
+                            ${item.image
+                                ? `<img src="${escapeHtml(resolveImagePath(item.image))}"
+                                        alt="${escapeHtml(item.name)}"
+                                        class="storage-level-image rounded"
+                                        onerror="this.style.display='none'">`
+                                : '<div class="storage-level-placeholder rounded d-flex align-items-center justify-content-center text-muted small">📍</div>'
+                            }
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-light text-dark small">${getStorageTypeLabel(item.type)}</span>
+                                <strong class="small">${escapeHtml(item.name)}</strong>
+                            </div>
+                            ${item.address ? `<div class="text-muted small mb-1">${escapeHtml(item.address)}</div>` : ''}
+                            ${item.info ? `<div class="text-muted small">${escapeHtml(item.info)}</div>` : ''}
+                        </div>
+                    </div>
+                    ${index < hierarchy.length - 1 ? '<div class="storage-connector mt-2 mb-2"></div>' : ''}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function getStorageTypeLabel(type) {
+    const labels = {
+        'site': '🏢 Site',
+        'local': '📍 Local',
+        'rangement': '🗂️ Rangement',
+        'niveau': '🧱 Niveau'
+    };
+    return labels[type] || type;
 }
 
 function resolveImagePath(path) {
