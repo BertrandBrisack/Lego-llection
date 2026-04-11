@@ -1,7 +1,7 @@
 // permissions.js - Gestion des permissions d'accès aux menus
 
 function checkUserPermissions() {
-    fetch('api/current_user.php', { credentials: 'include' })
+    fetch('../backend/api/current_user.php', { credentials: 'include' })
         .then(response => response.json())
         .then(data => {
             const isConnected = !!data.connected;

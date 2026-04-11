@@ -55,7 +55,7 @@ async function loadCollection(view) {
     clearMessage();
 
     try {
-        const currentUserResponse = await fetch('api/current_user.php', { credentials: 'include' });
+        const currentUserResponse = await fetch('../backend/api/current_user.php', { credentials: 'include' });
         const currentUserData = await currentUserResponse.json();
 
         if (!currentUserData.connected || !currentUserData.user) {
@@ -72,7 +72,7 @@ async function loadCollection(view) {
             return;
         }
 
-        const response = await fetch(`api/collection_sets.php?view=${encodeURIComponent(view)}`, { credentials: 'include' });
+        const response = await fetch(`../backend/api/collection_sets.php?view=${encodeURIComponent(view)}`, { credentials: 'include' });
         const data = await response.json();
 
         loadingIndicator.classList.add('d-none');
@@ -217,7 +217,7 @@ async function returnSet(setId, button) {
         const formData = new FormData();
         formData.append('idObjet', setId);
 
-        const response = await fetch('api/return_set.php', {
+        const response = await fetch('../backend/api/return_set.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'

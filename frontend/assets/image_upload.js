@@ -85,7 +85,7 @@ async function handleFormWithImageUploadDetailed(form, apiEndpoint, photoTypeNam
             const uploadFormData = new FormData();
             uploadFormData.append('photo', document.getElementById(fileInputId).files[0]);
 
-            const uploadResponse = await fetch('api/upload_image.php', {
+            const uploadResponse = await fetch('../backend/api/upload_image.php', {
                 method: 'POST',
                 body: uploadFormData,
                 credentials: 'include'

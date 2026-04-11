@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadSearchOptions() {
     try {
         // Charger les sites
-        const sitesResponse = await fetch('./api/sites.php');
+        const sitesResponse = await fetch('../backend/api/sites.php');
         const sitesData = await sitesResponse.json();
         if (sitesData.success && sitesData.sites) {
             const siteSelect = document.getElementById('siteSelect');
@@ -36,7 +36,7 @@ async function loadSearchOptions() {
         }
 
         // Charger les catégories/collections
-        const categoriesResponse = await fetch('./api/categories.php');
+        const categoriesResponse = await fetch('../backend/api/categories.php');
         const categoriesData = await categoriesResponse.json();
         if (categoriesData.success && categoriesData.categories) {
             const collectionSelect = document.getElementById('collectionSelect');
@@ -49,7 +49,7 @@ async function loadSearchOptions() {
         }
 
         // Charger les locaux
-        const localsResponse = await fetch('./api/locals.php');
+        const localsResponse = await fetch('../backend/api/locals.php');
         const localsData = await localsResponse.json();
         if (localsData.success && localsData.locals) {
             const localSelect = document.getElementById('localSelect');
@@ -62,7 +62,7 @@ async function loadSearchOptions() {
         }
 
         // Charger les rangements
-        const rangementsResponse = await fetch('./api/rangements.php');
+        const rangementsResponse = await fetch('../backend/api/rangements.php');
         const rangementsData = await rangementsResponse.json();
         if (rangementsData.success && rangementsData.rangements) {
             const rangementSelect = document.getElementById('rangementSelect');
@@ -75,7 +75,7 @@ async function loadSearchOptions() {
         }
 
         // Charger les niveaux
-        const niveauxResponse = await fetch('./api/niveaux.php');
+        const niveauxResponse = await fetch('../backend/api/niveaux.php');
         const niveauxData = await niveauxResponse.json();
         if (niveauxData.success && niveauxData.niveaux) {
             const niveauSelect = document.getElementById('niveauSelect');
@@ -88,7 +88,7 @@ async function loadSearchOptions() {
         }
 
         // Charger les statuts
-        const statusResponse = await fetch('./api/statuts.php');
+        const statusResponse = await fetch('../backend/api/statuts.php');
         const statusData = await statusResponse.json();
         if (statusData.success && statusData.statuts) {
             const statusSelect = document.getElementById('statusSelect');
@@ -108,7 +108,7 @@ async function loadSearchOptions() {
 // Vérifier si l'utilisateur est connecté
 async function checkUserConnection() {
     try {
-        const response = await fetch('./api/current_user.php');
+        const response = await fetch('../backend/api/current_user.php');
         const data = await response.json();
         isUserConnected = data.connected;
     } catch (error) {
@@ -146,7 +146,7 @@ async function performSearch() {
         if (status) params.append('status', status);
 
         // Effectuer la recherche
-        const response = await fetch('./api/search_sets.php?' + params.toString());
+        const response = await fetch('../backend/api/search_sets.php?' + params.toString());
         const data = await response.json();
 
         document.getElementById('loadingIndicator').classList.add('d-none');
@@ -327,7 +327,7 @@ async function borrowSet(setId, button) {
         const formData = new FormData();
         formData.append('idObjet', setId);
 
-        const response = await fetch('./api/borrow_set.php', {
+        const response = await fetch('../backend/api/borrow_set.php', {
             method: 'POST',
             body: formData
         });

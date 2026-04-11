@@ -57,7 +57,7 @@ async function handleDeleteSetFromProfile(setId) {
         const formData = new FormData();
         formData.append('idObjet', setId);
 
-        const response = await fetch('api/delete_set.php', {
+        const response = await fetch('../backend/api/delete_set.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -80,7 +80,7 @@ async function handleDeleteSetFromProfile(setId) {
 
 async function loadProfilePage() {
     try {
-        const response = await fetch('api/current_user.php', { credentials: 'include' });
+        const response = await fetch('../backend/api/current_user.php', { credentials: 'include' });
         const data = await response.json();
 
         if (!data.connected || !data.user) {
@@ -118,7 +118,7 @@ async function loadOwnerProperties(userId) {
     }
 
     try {
-        const response = await fetch(`api/user_properties.php?userId=${encodeURIComponent(userId)}`, { credentials: 'include' });
+        const response = await fetch(`../backend/api/user_properties.php?userId=${encodeURIComponent(userId)}`, { credentials: 'include' });
         const data = await response.json();
 
         if (!data.success) {
@@ -366,7 +366,7 @@ async function handleDeleteStorage(type, id) {
         formData.append('type', type);
         formData.append('id', id);
 
-        const response = await fetch('api/delete_storage.php', {
+        const response = await fetch('../backend/api/delete_storage.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -445,7 +445,7 @@ async function submitStorageUpdate(event) {
                 const uploadFormData = new FormData();
                 uploadFormData.append('photo', fileInput.files[0]);
 
-                const uploadResponse = await fetch('api/upload_image.php', {
+                const uploadResponse = await fetch('../backend/api/upload_image.php', {
                     method: 'POST',
                     body: uploadFormData,
                     credentials: 'include'
@@ -480,7 +480,7 @@ async function submitStorageUpdate(event) {
     }
 
     try {
-        const response = await fetch('api/update_storage.php', {
+        const response = await fetch('../backend/api/update_storage.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -630,9 +630,9 @@ async function ensureParentLists() {
 
     try {
         const [sitesResponse, localsResponse, rangementsResponse] = await Promise.all([
-            fetch('api/sites.php?mine=1', { credentials: 'include' }),
-            fetch('api/locals.php?mine=1', { credentials: 'include' }),
-            fetch('api/rangements.php?mine=1', { credentials: 'include' })
+            fetch('../backend/api/sites.php?mine=1', { credentials: 'include' }),
+            fetch('../backend/api/locals.php?mine=1', { credentials: 'include' }),
+            fetch('../backend/api/rangements.php?mine=1', { credentials: 'include' })
         ]);
 
         const [sitesData, localsData, rangementsData] = await Promise.all([

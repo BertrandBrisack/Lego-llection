@@ -32,7 +32,7 @@ function initializeProfileMenu() {
     }
     
     // Fetch les données de l'utilisateur actuel
-    fetch('api/current_user.php', { 
+    fetch('../backend/api/current_user.php', {
         credentials: 'include' // Important: inclure les cookies de session
     })
     .then(response => {
@@ -161,7 +161,7 @@ function logout() {
         logoutBtn.textContent = '⏳ Déconnexion...';
     }
     
-    fetch('api/logout.php', {
+    fetch('../backend/api/logout.php', {
         method: 'GET',
         credentials: 'include' // Important: inclure les cookies pour la déconnexion
     })

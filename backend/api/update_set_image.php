@@ -55,7 +55,7 @@ function deleteLocalImage($path) {
     if (!$path || preg_match('/^(https?:\/\/|\/)/', $path)) {
         return; // URL externe ou chemin absolu, on ne supprime rien
     }
-    $filePath = __DIR__ . '/../' . $path;
+    $filePath = __DIR__ . '/../../frontend/' . $path;
     if (file_exists($filePath)) {
         @unlink($filePath);
     }

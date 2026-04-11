@@ -120,7 +120,7 @@
     <script src="assets/profile_menu.js"></script>
     <script>
         function loadRecentSets() {
-            fetch('api/sets.php?page=1', { credentials: 'include' })
+            fetch('../backend/api/sets.php?page=1', { credentials: 'include' })
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     return response.json();
