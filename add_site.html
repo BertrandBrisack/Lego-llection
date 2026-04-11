@@ -62,71 +62,47 @@
     </nav>
 
     <div class="container mt-4">
-        <h1>Ajouter un Set</h1>
+        <h1>Ajouter un Site</h1>
+        <p class="text-muted">Le site sera automatiquement rattaché à votre compte.</p>
         <div id="message" class="alert" style="display: none;"></div>
-        <form id="addSetForm">
-            <div class="mb-3">
-                <label for="niveau" class="form-label">Niveau (facultatif)</label>
-                <select class="form-control" id="niveau" name="niveau">
-                    <option value="_none">Aucun emplacement</option>
-                    <option value="" disabled selected>Sélectionnez un niveau</option>
-                </select>
-                <input type="hidden" id="idNiveau" name="idNiveau">
-            </div>
-            <div class="mb-3">
-                <label for="idCategorie" class="form-label">Catégorie</label>
-                <select class="form-control" id="idCategorie" name="idCategorie" required>
-                    <option value="">Sélectionnez une catégorie</option>
-                </select>
-            </div>
+        <form id="addSiteForm">
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom</label>
                 <input type="text" class="form-control" id="nom" name="nom" required>
             </div>
             <div class="mb-3">
-                <label for="infoRangement" class="form-label">Info Rangement</label>
-                <textarea class="form-control" id="infoRangement" name="infoRangement"></textarea>
+                <label for="adresse" class="form-label">Adresse</label>
+                <input type="text" class="form-control" id="adresse" name="adresse" required>
+            </div>
+            <div class="mb-3">
+                <label for="codePostal" class="form-label">Code Postal</label>
+                <input type="text" class="form-control" id="codePostal" name="codePostal" required>
+            </div>
+            <div class="mb-3">
+                <label for="localite" class="form-label">Localité</label>
+                <input type="text" class="form-control" id="localite" name="localite" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Photo</label>
-                <div class="photo-options">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="photoType" id="photoUrl" value="url" checked>
-                        <label class="form-check-label" for="photoUrl">
-                            URL de l'image
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="photoType" id="photoUpload" value="upload">
-                        <label class="form-check-label" for="photoUpload">
-                            Télécharger une image
-                        </label>
-                    </div>
+                <div class="mb-2">
+                    <input type="radio" id="photoUrl" name="photoType" value="url" checked>
+                    <label for="photoUrl" class="ms-1">URL d'image</label>
+                    <input type="radio" id="photoUpload" name="photoType" value="upload" class="ms-3">
+                    <label for="photoUpload" class="ms-1">Uploader une image</label>
                 </div>
-                <div id="photoUrlContainer" class="mt-2">
+                <div id="photoUrlContainer">
                     <input type="text" class="form-control" id="photo" name="photo" placeholder="https://exemple.com/image.jpg">
                     <div id="photoPreview" class="mt-2" style="display: none;">
                         <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                         <small class="text-muted">Aperçu de l'image</small>
                     </div>
                 </div>
-                <div id="photoUploadContainer" class="mt-2" style="display: none;">
+                <div id="photoUploadContainer" style="display: none;">
                     <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*">
-                    <div class="form-text">Formats acceptés: JPG, PNG, GIF. Taille max: 5MB. Choisissez depuis la galerie ou le gestionnaire de fichiers.</div>
+                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB). Sur mobile : accès à la galerie. Sur PC : gestionnaire de fichiers.</div>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="infoPlus" class="form-label">Info Plus</label>
-                <textarea class="form-control" id="infoPlus" name="infoPlus"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="statut" class="form-label">Statut</label>
-                <select class="form-control" id="statut" name="statut">
-                    <option value="disponible">Disponible</option>
-                    <option value="emprunté">Emprunté</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Ajouter le Set</button>
+            <button type="submit" class="btn btn-primary">Ajouter le Site</button>
         </form>
     </div>
 
@@ -135,46 +111,48 @@
     <script src="assets/profile_menu.js"></script>
     <script src="assets/image_upload.js"></script>
     <script>
-        // Initialiser la gestion des photos
+        // Détecter si l'appareil est mobile
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Ajuster le champ de fichier selon l'appareil
+        function adjustFileInputForDevice() {
+            const fileInput = document.getElementById('photoFile');
+            if (isMobile()) {
+                // Sur mobile, supprimer l'attribut capture pour permettre l'accès à la galerie
+                fileInput.removeAttribute('capture');
+            } else {
+                // Sur PC, s'assurer que capture est défini pour le gestionnaire de fichiers (par défaut)
+                fileInput.setAttribute('capture', '');
+            }
+        }
+
+        adjustFileInputForDevice();
         initializePhotoUpload();
 
-        // Charger uniquement les niveaux liés à l'utilisateur connecté
-        fetch('../backend/api/niveaux.php?mine=1', { credentials: 'include' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const select = document.getElementById('niveau');
-                    data.niveaux.forEach(n => {
-                        const option = document.createElement('option');
-                        option.value = n.idNiveau;
-                        option.textContent = n.nom + ' (' + n.rangement_nom + ', ' + n.local_nom + ', ' + n.site_nom + ')';
-                        select.appendChild(option);
-                    });
-                }
-            });
-
-        // Charger les catégories
-        fetch('../backend/api/categories.php', { credentials: 'include' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const select = document.getElementById('idCategorie');
-                    data.categories.forEach(c => {
-                        const option = document.createElement('option');
-                        option.value = c.idCategorie;
-                        option.textContent = c.nom;
-                        select.appendChild(option);
-                    });
-                }
-            });
-
-        document.getElementById('niveau').addEventListener('change', function() {
-            document.getElementById('idNiveau').value = this.value === '_none' ? '' : this.value;
-        });
-
-        document.getElementById('addSetForm').addEventListener('submit', function(e) {
+        document.getElementById('addSiteForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            handleFormWithImageUpload(this, '../backend/api/add_set.php');
+            handleFormWithImageUploadDetailed(
+                this,
+                'backend/api/add_site.php',
+                'photoType',
+                'photoFile',
+                function(data) {
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.className = 'alert alert-success';
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.display = 'block';
+                    document.getElementById('addSiteForm').reset();
+                    resetPhotoFields();
+                },
+                function(errorMessage) {
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = errorMessage;
+                    messageDiv.style.display = 'block';
+                }
+            );
         });
 
         // Vérifier les permissions au démarrage

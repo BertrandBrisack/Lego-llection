@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lego'llection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container text-center">
+            <img src="https://via.placeholder.com/150x50?text=Logo+Lego'llection" alt="Logo Lego'llection" class="img-fluid">
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">Lego'llection</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.html">Recherche</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="collectionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Collection
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="collectionDropdown">
+                            <li><a class="dropdown-item" id="myCollectionLink" href="collection.html?view=mine">Ma Collection</a></li>
+                            <li><a class="dropdown-item" id="myBorrowsLink" href="collection.html?view=borrows">Mes emprunts</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ajouter
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="addDropdown">
+                            <li><a class="dropdown-item" href="add_site.html">Site</a></li>
+                            <li><a class="dropdown-item" href="add_local.html">Local</a></li>
+                            <li><a class="dropdown-item" href="add_rangement.html">Rangement</a></li>
+                            <li><a class="dropdown-item" href="add_niveau.html">Niveau</a></li>
+                            <li><a class="dropdown-item" href="add_set.html">Set</a></li>
+                            <li><a class="dropdown-item" href="add_collection.html">Collection</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex ms-auto">
+                    <div id="profileMenuContainer" class="d-flex align-items-center">
+                        <a href="login.html">
+                            <img src="./assets/ProfilParDefaut.png" class="rounded-circle" alt="Photo de profil" width="40" height="40">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Ajouter un Rangement</h1>
+        <div id="message" class="alert" style="display: none;"></div>
+        <form id="addRangementForm">
+            <div class="mb-3">
+                <label for="local" class="form-label">Local</label>
+                <select class="form-control" id="local" name="local" required>
+                    <option value="">Sélectionnez un local</option>
+                </select>
+                <input type="hidden" id="idLocal" name="idLocal">
+            </div>
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="nom" name="nom" required>
+            </div>
+            <div class="mb-3">
+                <label for="infoRangement" class="form-label">Info Rangement</label>
+                <textarea class="form-control" id="infoRangement" name="infoRangement"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Photo</label>
+                <div class="mb-2">
+                    <input type="radio" id="photoUrl" name="photoType" value="url" checked>
+                    <label for="photoUrl" class="ms-1">URL d'image</label>
+                    <input type="radio" id="photoUpload" name="photoType" value="upload" class="ms-3">
+                    <label for="photoUpload" class="ms-1">Uploader une image</label>
+                </div>
+                <div id="photoUrlContainer">
+                    <input type="text" class="form-control" id="photo" name="photo" placeholder="https://exemple.com/image.jpg">
+                    <div id="photoPreview" class="mt-2" style="display: none;">
+                        <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        <small class="text-muted">Aperçu de l'image</small>
+                    </div>
+                </div>
+                <div id="photoUploadContainer" style="display: none;">
+                    <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*">
+                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB). Choisissez depuis la galerie ou le gestionnaire de fichiers.</div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter le Rangement</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/permissions.js"></script>
+    <script src="assets/profile_menu.js"></script>
+    <script src="assets/image_upload.js"></script>
+    <script>
+        // Initialiser la gestion des photos
+        initializePhotoUpload();
+
+        // Charger uniquement les locaux liés à l'utilisateur connecté
+        fetch('backend/api/locals.php?mine=1', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('local');
+                    data.locals.forEach(local => {
+                        const option = document.createElement('option');
+                        option.value = local.idLocal;
+                        option.textContent = local.nom + ' (' + local.site_nom + ')';
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+        document.getElementById('local').addEventListener('change', function() {
+            document.getElementById('idLocal').value = this.value;
+        });
+
+        document.getElementById('addRangementForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleFormWithImageUpload(this, 'backend/api/add_rangement.php');
+        });
+
+        // Vérifier les permissions au démarrage
+        checkUserPermissions();
+
+        // Initialiser le menu profil
+        initializeProfileMenu();
+    </script>
+</body>
+</html>

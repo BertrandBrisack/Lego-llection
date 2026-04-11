@@ -129,3 +129,4 @@
 
     window.initImageLightbox = initImageLightbox;
 })();
+

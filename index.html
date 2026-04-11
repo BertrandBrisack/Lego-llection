@@ -43,6 +43,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Bandeau avec logo -->
     <header class="bg-primary text-white py-3">
@@ -120,10 +121,26 @@
     <script src="assets/profile_menu.js"></script>
     <script>
         function loadRecentSets() {
-            fetch('../backend/api/sets.php?page=1', { credentials: 'include' })
+            fetch('backend/api/sets.php?page=1', { credentials: 'include' })
                 .then(response => {
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    return response.json();
+                    return response.text().then(text => {
+                        if (!response.ok) {
+                            let message = text;
+                            try {
+                                const json = JSON.parse(text);
+                                message = json.error || json.message || text;
+                            } catch (_) {
+                                // non-JSON response
+                            }
+                            throw new Error(`HTTP ${response.status}: ${message}`);
+                        }
+
+                        try {
+                            return JSON.parse(text);
+                        } catch (err) {
+                            throw new Error(`Réponse invalide du serveur : ${text}`);
+                        }
+                    });
                 })
                 .then(data => {
                     const content = document.getElementById('setsContent');

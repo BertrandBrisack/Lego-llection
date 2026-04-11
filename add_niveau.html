@@ -112,7 +112,7 @@
         initializePhotoUpload();
 
         // Charger uniquement les rangements liés à l'utilisateur connecté
-        fetch('../backend/api/rangements.php?mine=1', { credentials: 'include' })
+        fetch('backend/api/rangements.php?mine=1', { credentials: 'include' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -134,7 +134,7 @@
             e.preventDefault();
             handleFormWithImageUploadDetailed(
                 this,
-                '../backend/api/add_niveau.php',
+                'backend/api/add_niveau.php',
                 'photoType',
                 'photoFile',
                 function(data) {

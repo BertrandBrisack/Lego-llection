@@ -1,12 +1,12 @@
-drop database if exists Legollection;
+drop database if exists legollection;
 
 
 -- Création de la base
-CREATE DATABASE IF NOT EXISTS Legollection
+CREATE DATABASE IF NOT EXISTS legollection
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 
-USE Legollection;
+USE legollection;
 
 -- ============================
 --   TABLES

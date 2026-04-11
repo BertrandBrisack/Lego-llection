@@ -3,7 +3,7 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 // Configuration
-$uploadDir = '../../frontend/uploads/';
+$uploadDir = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') . '/uploads/';
 $maxFileSize = 5 * 1024 * 1024; // 5MB
 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -51,8 +51,8 @@ $filepath = $uploadDir . $filename;
 
 // Déplacer le fichier uploadé
 if (move_uploaded_file($file['tmp_name'], $filepath)) {
-    // Retourner le chemin relatif pour stockage en base (accessible depuis frontend)
-    $relativePath = 'uploads/' . $filename;
+    // Retourner un chemin accessible depuis la racine du site
+    $relativePath = '/uploads/' . $filename;
     echo json_encode([
         'success' => true,
         'message' => 'Image uploadée avec succès.',

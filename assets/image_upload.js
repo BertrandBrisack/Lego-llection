@@ -45,6 +45,16 @@ function initializePhotoUploadWithIds(photoTypeName, urlContainerId, uploadConta
     }
 }
 
+async function parseJSONResponse(response) {
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        const snippet = text.trim().slice(0, 200);
+        throw new Error(`Réponse JSON invalide (${response.status} ${response.statusText}) : ${snippet}`);
+    }
+}
+
 /**
  * Gère la soumission d'un formulaire avec upload d'image (version simplifiée)
  * @param {HTMLFormElement} form - Le formulaire à soumettre
@@ -85,13 +95,18 @@ async function handleFormWithImageUploadDetailed(form, apiEndpoint, photoTypeNam
             const uploadFormData = new FormData();
             uploadFormData.append('photo', document.getElementById(fileInputId).files[0]);
 
-            const uploadResponse = await fetch('../backend/api/upload_image.php', {
+            const uploadResponse = await fetch('backend/api/upload_image.php', {
                 method: 'POST',
                 body: uploadFormData,
                 credentials: 'include'
             });
 
-            const uploadResult = await uploadResponse.json();
+            if (!uploadResponse.ok) {
+                const errorText = await uploadResponse.text();
+                throw new Error(`Erreur upload image : ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText.trim().slice(0, 250)}`);
+            }
+
+            const uploadResult = await parseJSONResponse(uploadResponse);
 
             if (!uploadResult.success) {
                 throw new Error(uploadResult.message);
@@ -107,7 +122,12 @@ async function handleFormWithImageUploadDetailed(form, apiEndpoint, photoTypeNam
             credentials: 'include'
         });
 
-        const data = await response.json();
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Erreur API : ${response.status} ${response.statusText} - ${errorText.trim().slice(0, 250)}`);
+        }
+
+        const data = await parseJSONResponse(response);
 
         if (data.success) {
             onSuccess(data);

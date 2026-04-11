@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lego'llection</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .set-image {
+            height: 220px;
+            object-fit: cover;
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
     <header class="bg-primary text-white py-3">
@@ -28,7 +35,7 @@
                         <a class="nav-link" href="search.html">Recherche</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="collectionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle active" href="#" id="collectionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Collection
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="collectionDropdown">
@@ -61,63 +68,31 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h1>Ajouter une Collection</h1>
-        <div id="message" class="alert" style="display: none;"></div>
-        <form id="addCollectionForm">
-            <div class="mb-3">
-                <label for="nom" class="form-label">Nom</label>
-                <input type="text" class="form-control" id="nom" name="nom" required>
+    <main class="container my-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+            <div>
+                <h1 id="pageTitle">Collection</h1>
+                <p id="pageDescription" class="text-muted mb-0"></p>
             </div>
-            <div class="mb-3">
-                <label for="infoPlus" class="form-label">Info Plus</label>
-                <textarea class="form-control" id="infoPlus" name="infoPlus"></textarea>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <div id="loadingIndicator" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Photo</label>
-                <div class="photo-options">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="photoType" id="photoUrl" value="url" checked>
-                        <label class="form-check-label" for="photoUrl">URL de l'image</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="photoType" id="photoUpload" value="upload">
-                        <label class="form-check-label" for="photoUpload">Uploader une image</label>
-                    </div>
-                </div>
-                <div id="photoUrlContainer" class="mt-2">
-                    <input type="text" class="form-control" id="photo" name="photo" placeholder="https://exemple.com/image.jpg">
-                    <div id="photoPreview" class="mt-2" style="display: none;">
-                        <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                        <small class="text-muted">Aperçu de l'image</small>
-                    </div>
-                </div>
-                <div id="photoUploadContainer" class="mt-2" style="display: none;">
-                    <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*">
-                    <div class="form-text">Formats acceptés : JPG, PNG, GIF, WebP. Taille max : 5MB. Choisissez depuis la galerie ou le gestionnaire de fichiers.</div>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Ajouter la Collection</button>
-        </form>
-    </div>
+        </div>
+
+        <div id="resultsCount" class="mb-3"></div>
+        <div id="resultsList" class="row g-4"></div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/permissions.js"></script>
     <script src="assets/profile_menu.js"></script>
-    <script src="assets/image_upload.js"></script>
-    <script>
-        initializePhotoUpload();
-
-        document.getElementById('addCollectionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            handleFormWithImageUpload(this, '../backend/api/add_collection.php');
-        });
-
-        // Vérifier les permissions au démarrage
-        checkUserPermissions();
-
-        // Initialiser le menu profil
-        initializeProfileMenu();
-    </script>
+    <script src="assets/collection.js"></script>
+    <script src="assets/image_lightbox.js"></script>
 </body>
 </html>
+

@@ -6,10 +6,10 @@ header('Content-Type: application/json');
 include '../config.php';
 
 try {
-    $stmt = $pdo->query("SELECT * FROM categorie");
+    $stmt = $pdo->query("SELECT * FROM Categorie");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode(['success' => true, 'categories' => $categories]);
+    echo json_encode(['success' => true, 'categories' => $categories], JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => 'Erreur lors de la récupération des données : ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Erreur lors de la récupération des données : ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }
 ?>

@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function loadCurrentUser() {
     try {
-        const response = await fetch('../backend/api/current_user.php', { credentials: 'include' });
+        const response = await fetch('backend/api/current_user.php', { credentials: 'include' });
         const data = await response.json();
         currentUser = data.connected && data.user ? data.user : null;
         return currentUser;
@@ -39,7 +39,7 @@ async function loadSetDetails() {
     }
 
     try {
-        const response = await fetch(`../backend/api/set_details.php?id=${encodeURIComponent(setId)}`, {
+        const response = await fetch(`backend/api/set_details.php?id=${encodeURIComponent(setId)}`, {
             credentials: 'include'
         });
         const data = await response.json();
@@ -72,7 +72,7 @@ async function loadSetDetails() {
 
 async function fetchOwnerNiveaux() {
     try {
-        const response = await fetch('../backend/api/niveaux.php?mine=1', { credentials: 'include' });
+        const response = await fetch('backend/api/niveaux.php?mine=1', { credentials: 'include' });
         const data = await response.json();
         return data.success && Array.isArray(data.niveaux) ? data.niveaux : [];
     } catch (error) {
@@ -107,7 +107,7 @@ async function handleDeleteSet(event) {
         const formData = new FormData();
         formData.append('idObjet', setId);
 
-        const response = await fetch('../backend/api/delete_set.php', {
+        const response = await fetch('backend/api/delete_set.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -136,7 +136,7 @@ async function submitSetLocationUpdate(event) {
     const formData = new FormData(form);
 
     try {
-        const response = await fetch('../backend/api/update_set_location.php', {
+        const response = await fetch('backend/api/update_set_location.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -170,7 +170,7 @@ async function submitSetImageUpdate(event) {
     event.preventDefault();
     const form = event.currentTarget;
 
-    await handleFormWithImageUploadDetailed(form, '../backend/api/update_set_image.php', 'photoType', 'photoFile', (data) => {
+    await handleFormWithImageUploadDetailed(form, 'backend/api/update_set_image.php', 'photoType', 'photoFile', (data) => {
         showMessage('success', data.message || 'Image du set mise à jour avec succès.');
         form.reset();
         resetPhotoFields();
@@ -483,3 +483,4 @@ function escapeHtml(text) {
     div.textContent = String(text);
     return div.innerHTML;
 }
+

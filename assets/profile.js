@@ -57,7 +57,7 @@ async function handleDeleteSetFromProfile(setId) {
         const formData = new FormData();
         formData.append('idObjet', setId);
 
-        const response = await fetch('../backend/api/delete_set.php', {
+        const response = await fetch('backend/api/delete_set.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -80,7 +80,7 @@ async function handleDeleteSetFromProfile(setId) {
 
 async function loadProfilePage() {
     try {
-        const response = await fetch('../backend/api/current_user.php', { credentials: 'include' });
+        const response = await fetch('backend/api/current_user.php', { credentials: 'include' });
         const data = await response.json();
 
         if (!data.connected || !data.user) {
@@ -118,7 +118,7 @@ async function loadOwnerProperties(userId) {
     }
 
     try {
-        const response = await fetch(`../backend/api/user_properties.php?userId=${encodeURIComponent(userId)}`, { credentials: 'include' });
+        const response = await fetch(`backend/api/user_properties.php?userId=${encodeURIComponent(userId)}`, { credentials: 'include' });
         const data = await response.json();
 
         if (!data.success) {
@@ -366,7 +366,7 @@ async function handleDeleteStorage(type, id) {
         formData.append('type', type);
         formData.append('id', id);
 
-        const response = await fetch('../backend/api/delete_storage.php', {
+        const response = await fetch('backend/api/delete_storage.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -445,12 +445,24 @@ async function submitStorageUpdate(event) {
                 const uploadFormData = new FormData();
                 uploadFormData.append('photo', fileInput.files[0]);
 
-                const uploadResponse = await fetch('../backend/api/upload_image.php', {
+                const uploadResponse = await fetch('backend/api/upload_image.php', {
                     method: 'POST',
                     body: uploadFormData,
                     credentials: 'include'
                 });
-                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    const errorText = await uploadResponse.text();
+                    throw new Error(`Erreur upload image : ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText.trim().slice(0, 250)}`);
+                }
+
+                const uploadText = await uploadResponse.text();
+                let uploadResult;
+                try {
+                    uploadResult = JSON.parse(uploadText);
+                } catch (jsonError) {
+                    throw new Error(`Réponse JSON invalide lors de l'upload : ${uploadText.trim().slice(0, 250)}`);
+                }
 
                 if (!uploadResult.success) {
                     throw new Error(uploadResult.message || 'Erreur lors de l\'upload de l\'image.');
@@ -480,7 +492,7 @@ async function submitStorageUpdate(event) {
     }
 
     try {
-        const response = await fetch('../backend/api/update_storage.php', {
+        const response = await fetch('backend/api/update_storage.php', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -630,9 +642,9 @@ async function ensureParentLists() {
 
     try {
         const [sitesResponse, localsResponse, rangementsResponse] = await Promise.all([
-            fetch('../backend/api/sites.php?mine=1', { credentials: 'include' }),
-            fetch('../backend/api/locals.php?mine=1', { credentials: 'include' }),
-            fetch('../backend/api/rangements.php?mine=1', { credentials: 'include' })
+            fetch('backend/api/sites.php?mine=1', { credentials: 'include' }),
+            fetch('backend/api/locals.php?mine=1', { credentials: 'include' }),
+            fetch('backend/api/rangements.php?mine=1', { credentials: 'include' })
         ]);
 
         const [sitesData, localsData, rangementsData] = await Promise.all([
@@ -683,3 +695,4 @@ function escapeProfileHtml(text) {
 
     return text ? String(text).replace(/[&<>"']/g, character => map[character]) : '';
 }
+

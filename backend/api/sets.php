@@ -1,8 +1,25 @@
 <?php
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 header('Content-Type: application/json; charset=utf-8');
 
-include '../config.php';
+$configFile = __DIR__ . '/../config.php';
+if (!is_readable($configFile)) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Fichier de configuration introuvable: ' . $configFile
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+set_error_handler(function ($severity, $message, $file, $line) {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+require_once $configFile;
+restore_error_handler();
 
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $limit = 10;

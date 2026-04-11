@@ -44,3 +44,4 @@ async function getFromAPI(endpoint) {
     });
     return response.json();
 }
+

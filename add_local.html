@@ -62,25 +62,22 @@
     </nav>
 
     <div class="container mt-4">
-        <h1>Ajouter un Site</h1>
-        <p class="text-muted">Le site sera automatiquement rattaché à votre compte.</p>
+        <h1>Ajouter un Local</h1>
         <div id="message" class="alert" style="display: none;"></div>
-        <form id="addSiteForm">
+        <form id="addLocalForm">
+            <div class="mb-3">
+                <label for="idSite" class="form-label">Site</label>
+                <select class="form-control" id="idSite" name="idSite" required>
+                    <option value="">Sélectionnez un site</option>
+                </select>
+            </div>
             <div class="mb-3">
                 <label for="nom" class="form-label">Nom</label>
                 <input type="text" class="form-control" id="nom" name="nom" required>
             </div>
             <div class="mb-3">
-                <label for="adresse" class="form-label">Adresse</label>
-                <input type="text" class="form-control" id="adresse" name="adresse" required>
-            </div>
-            <div class="mb-3">
-                <label for="codePostal" class="form-label">Code Postal</label>
-                <input type="text" class="form-control" id="codePostal" name="codePostal" required>
-            </div>
-            <div class="mb-3">
-                <label for="localite" class="form-label">Localité</label>
-                <input type="text" class="form-control" id="localite" name="localite" required>
+                <label for="infoLocal" class="form-label">Info Local</label>
+                <textarea class="form-control" id="infoLocal" name="infoLocal"></textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Photo</label>
@@ -99,10 +96,10 @@
                 </div>
                 <div id="photoUploadContainer" style="display: none;">
                     <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*">
-                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB). Sur mobile : accès à la galerie. Sur PC : gestionnaire de fichiers.</div>
+                    <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB). Choisissez depuis la galerie ou le gestionnaire de fichiers.</div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Ajouter le Site</button>
+            <button type="submit" class="btn btn-primary">Ajouter le Local</button>
         </form>
     </div>
 
@@ -111,31 +108,28 @@
     <script src="assets/profile_menu.js"></script>
     <script src="assets/image_upload.js"></script>
     <script>
-        // Détecter si l'appareil est mobile
-        function isMobile() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
-        // Ajuster le champ de fichier selon l'appareil
-        function adjustFileInputForDevice() {
-            const fileInput = document.getElementById('photoFile');
-            if (isMobile()) {
-                // Sur mobile, supprimer l'attribut capture pour permettre l'accès à la galerie
-                fileInput.removeAttribute('capture');
-            } else {
-                // Sur PC, s'assurer que capture est défini pour le gestionnaire de fichiers (par défaut)
-                fileInput.setAttribute('capture', '');
-            }
-        }
-
-        adjustFileInputForDevice();
         initializePhotoUpload();
 
-        document.getElementById('addSiteForm').addEventListener('submit', function(e) {
+        // Charger uniquement les sites liés à l'utilisateur connecté
+        fetch('backend/api/sites.php?mine=1', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('idSite');
+                    data.sites.forEach(site => {
+                        const option = document.createElement('option');
+                        option.value = site.idSite;
+                        option.textContent = site.nom;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+        document.getElementById('addLocalForm').addEventListener('submit', function(e) {
             e.preventDefault();
             handleFormWithImageUploadDetailed(
                 this,
-                '../backend/api/add_site.php',
+                'backend/api/add_local.php',
                 'photoType',
                 'photoFile',
                 function(data) {
@@ -143,7 +137,7 @@
                     messageDiv.className = 'alert alert-success';
                     messageDiv.textContent = data.message;
                     messageDiv.style.display = 'block';
-                    document.getElementById('addSiteForm').reset();
+                    document.getElementById('addLocalForm').reset();
                     resetPhotoFields();
                 },
                 function(errorMessage) {
