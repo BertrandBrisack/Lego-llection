@@ -497,7 +497,20 @@ async function submitStorageUpdate(event) {
             body: formData,
             credentials: 'include'
         });
-        const result = await response.json();
+
+        const responseText = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(responseText);
+        } catch (jsonError) {
+            console.error('JSON Parse Error. Response status:', response.status, 'Response text:', responseText);
+            throw new Error(`Réponse non valide du serveur (${response.status}) : ${responseText.trim().slice(0, 250)}`);
+        }
+
+        if (!response.ok && result.message) {
+            throw new Error(`Erreur serveur (${response.status}): ${result.message}`);
+        }
 
         if (!result.success) {
             throw new Error(result.message || 'Mise à jour impossible');

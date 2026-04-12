@@ -181,71 +181,17 @@ function displayResults(data) {
 
     if (data.sets.length === 0) {
         resultsList.innerHTML = `
-            <div class="no-results">
-                <p>Aucun set trouvé selon vos critères de recherche.</p>
+            <div class="col-12">
+                <div class="no-results">
+                    <p>Aucun set trouvé selon vos critères de recherche.</p>
+                </div>
             </div>
         `;
         return;
     }
 
     // Créer les cartes des sets
-    resultsList.innerHTML = data.sets.map(set => {
-        // Formater le statut
-        let statusBadge = '';
-        let statusColor = '';
-        let borrowButton = '';
-        const detailUrl = `set.html?id=${encodeURIComponent(set.idObjet || '')}`;
-
-        if (set.statut) {
-            const lowerStatus = set.statut.toLowerCase();
-            // Déterminer la couleur en fonction du statut
-            if (lowerStatus.includes('disponible') || lowerStatus.includes('available')) {
-                statusColor = 'success';
-                // Ajouter le bouton d'emprunt si disponible et utilisateur connecté
-                if (isUserConnected) {
-                    borrowButton = `<button class="btn btn-primary btn-sm borrow-btn" data-id="${escapeHtml(set.idObjet || '')}">Emprunter</button>`;
-                }
-            } else if (lowerStatus.includes('emprunté') || lowerStatus.includes('borrowed') || lowerStatus.includes('emprunte')) {
-                statusColor = 'danger';
-            } else {
-                statusColor = 'secondary';
-            }
-            statusBadge = set.statut;
-        }
-
-        return `
-        <div class="set-card border rounded p-3 mb-3 bg-white shadow-sm" data-set-id="${escapeHtml(set.idObjet || '')}" tabindex="0" role="link" style="cursor:pointer;">
-            <div class="set-header">
-                ${getBestSetImagePath(set) ? `<img src="${escapeHtml(resolveImagePath(getBestSetImagePath(set)))}" alt="${escapeHtml(set.nom || 'Set Lego')}" class="set-image">` : '<div class="set-image" style="background-color: #e9ecef;"></div>'}
-                <div class="set-info">
-                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px; flex-wrap: wrap;">
-                        <h5 class="mb-2">${escapeHtml(set.nom)}</h5>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <a href="${detailUrl}" class="btn btn-outline-secondary btn-sm detail-link">Voir la fiche</a>
-                            ${statusBadge ? `<span class="badge bg-${statusColor}">${escapeHtml(statusBadge)}</span>` : ''}
-                            ${borrowButton}
-                        </div>
-                    </div>
-                    ${set.infoPlus ? `<p class="mb-2">${escapeHtml(set.infoPlus)}</p>` : ''}
-                    <div class="set-details">
-                        ${set.site_nom ? `<span class="set-details-item"><strong>Site:</strong> ${escapeHtml(set.site_nom)}</span>` : ''}
-                        ${set.local_nom ? `<span class="set-details-item"><strong>Local:</strong> ${escapeHtml(set.local_nom)}</span>` : ''}
-                        ${set.rangement_nom ? `<span class="set-details-item"><strong>Rangement:</strong> ${escapeHtml(set.rangement_nom)}</span>` : ''}
-                        ${set.niveau_nom ? `<span class="set-details-item"><strong>Niveau:</strong> ${escapeHtml(set.niveau_nom)}</span>` : ''}
-                        ${set.collection ? `<span class="set-details-item"><strong>Collection:</strong> ${escapeHtml(set.collection)}</span>` : ''}
-                        ${set.date ? `<span class="set-details-item"><strong>Date:</strong> ${escapeHtml(set.date)}</span>` : ''}
-                    </div>
-                    ${set.proprietaire_login || set.proprietaire_prenom || set.proprietaire_nom ? `
-                        <p class="mt-2 mb-0" style="font-size: 0.85rem; color: #666;">
-                            <strong>Propriétaire:</strong> ${escapeHtml(set.proprietaire_login || `${set.proprietaire_prenom || ''} ${set.proprietaire_nom || ''}`.trim())}
-                        </p>
-                    ` : ''}
-                    <p class="mt-3 mb-0 text-primary small">Cliquez pour voir la fiche complète</p>
-                </div>
-            </div>
-        </div>
-    `;
-    }).join('');
+    resultsList.innerHTML = data.sets.map(set => renderSetCard(set)).join('');
 
     // Ajouter les event listeners pour les boutons d'emprunt
     document.querySelectorAll('.borrow-btn').forEach(button => {
@@ -262,7 +208,7 @@ function displayResults(data) {
         });
     });
 
-    document.querySelectorAll('.set-card[data-set-id]').forEach(card => {
+    document.querySelectorAll('.set-card-clickable[data-set-id]').forEach(card => {
         card.addEventListener('click', function(event) {
             if (event.target.closest('button, a')) {
                 return;
@@ -288,6 +234,64 @@ function displayResults(data) {
             }
         });
     });
+}
+
+function renderSetCard(set) {
+    const locationParts = [set.site_nom, set.local_nom, set.rangement_nom, set.niveau_nom].filter(Boolean);
+    const dateText = formatDate(set.date);
+    const ownerName = (set.proprietaire_login || [set.proprietaire_prenom, set.proprietaire_nom].filter(Boolean).join(' ').trim()).trim();
+    const badgeClass = set.statut && set.statut.toLowerCase().includes('disponible') ? 'bg-success' : 'bg-warning text-dark';
+    const detailUrl = `set.html?id=${encodeURIComponent(set.idObjet || '')}`;
+    let borrowButton = '';
+
+    if (set.statut && set.statut.toLowerCase().includes('disponible') && isUserConnected) {
+        borrowButton = `<button type="button" class="btn btn-primary btn-sm borrow-btn" data-id="${escapeHtml(set.idObjet || '')}">Emprunter</button>`;
+    }
+
+    const actionButtons = `
+        <div class="mt-3 d-flex flex-wrap gap-2">
+            <a href="${detailUrl}" class="btn btn-outline-secondary btn-sm detail-link">Voir la fiche</a>
+            ${borrowButton}
+        </div>
+    `;
+
+    const imagePath = getBestSetImagePath(set);
+
+    return `
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm set-card-clickable" data-set-id="${escapeHtml(set.idObjet || '')}" tabindex="0" role="link" style="cursor:pointer;">
+                ${imagePath ? `<img src="${escapeHtml(resolveImagePath(imagePath))}" class="card-img-top set-image" alt="${escapeHtml(set.nom)}">` : '<div class="card-img-top set-image d-flex align-items-center justify-content-center text-muted">Aucune image</div>'}
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <h5 class="card-title mb-2">${escapeHtml(set.nom || 'Set sans nom')}</h5>
+                        <span class="badge ${badgeClass}">${escapeHtml(set.statut || 'Inconnu')}</span>
+                    </div>
+
+                    ${set.collection ? `<p class="mb-2"><strong>Collection :</strong> ${escapeHtml(set.collection)}</p>` : ''}
+                    ${set.infoPlus ? `<p class="card-text">${escapeHtml(set.infoPlus)}</p>` : ''}
+
+                    <ul class="list-unstyled small text-muted mt-auto mb-0">
+                        ${ownerName ? `<li><strong>Propriétaire :</strong> ${escapeHtml(ownerName)}</li>` : ''}
+                        ${dateText ? `<li><strong>Date :</strong> ${escapeHtml(dateText)}</li>` : ''}
+                        ${locationParts.length ? `<li><strong>Emplacement :</strong> ${escapeHtml(locationParts.join(' > '))}</li>` : ''}
+                    </ul>
+
+                    <p class="mt-3 mb-2 text-primary small">Cliquez pour voir la fiche complète</p>
+                    ${actionButtons}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR');
+    } catch {
+        return dateString;
+    }
 }
 
 // Fonction pour échapper les caractères HTML

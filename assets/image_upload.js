@@ -22,8 +22,8 @@ function initializePhotoUploadWithIds(photoTypeName, urlContainerId, uploadConta
             const isUrl = this.value === 'url';
             document.getElementById(urlContainerId).style.display = isUrl ? 'block' : 'none';
             document.getElementById(uploadContainerId).style.display = isUrl ? 'none' : 'block';
-            document.getElementById(urlInputId).required = isUrl;
-            document.getElementById(fileInputId).required = !isUrl;
+            document.getElementById(urlInputId).required = false;
+            document.getElementById(fileInputId).required = false;
             
             // Masquer l'aperçu quand on change de type
             const preview = document.getElementById(urlInputId + 'Preview');
@@ -61,7 +61,7 @@ async function parseJSONResponse(response) {
  * @param {string} apiEndpoint - Endpoint API pour la soumission
  */
 function handleFormWithImageUpload(form, apiEndpoint) {
-    handleFormWithImageUploadDetailed(form, apiEndpoint, 'photoType', 'photoFile', (data) => {
+    handleFormWithImageUploadDetailed(form, apiEndpoint, 'photoType', 'photo', 'photoFile', (data) => {
         const messageDiv = document.getElementById('message');
         messageDiv.className = 'alert alert-success';
         messageDiv.textContent = data.message;
@@ -85,7 +85,7 @@ function handleFormWithImageUpload(form, apiEndpoint) {
  * @param {Function} onSuccess - Callback en cas de succès
  * @param {Function} onError - Callback en cas d'erreur
  */
-async function handleFormWithImageUploadDetailed(form, apiEndpoint, photoTypeName, fileInputId, onSuccess, onError) {
+async function handleFormWithImageUploadDetailed(form, apiEndpoint, photoTypeName, urlInputId, fileInputId, onSuccess, onError) {
     try {
         const formData = new FormData(form);
         const photoType = document.querySelector(`input[name="${photoTypeName}"]:checked`).value;
@@ -114,6 +114,31 @@ async function handleFormWithImageUploadDetailed(form, apiEndpoint, photoTypeNam
 
             // Utiliser le chemin de l'image uploadée
             formData.set('photo', uploadResult.path);
+        } else if (photoType === 'url') {
+            const url = document.getElementById(urlInputId).value.trim();
+            if (url) {
+                const uploadFormData = new FormData();
+                uploadFormData.append('url', url);
+
+                const uploadResponse = await fetch('backend/api/upload_image.php', {
+                    method: 'POST',
+                    body: uploadFormData,
+                    credentials: 'include'
+                });
+
+                if (!uploadResponse.ok) {
+                    const errorText = await uploadResponse.text();
+                    throw new Error(`Erreur téléchargement image : ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText.trim().slice(0, 250)}`);
+                }
+
+                const uploadResult = await parseJSONResponse(uploadResponse);
+
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.message);
+                }
+
+                formData.set('photo', uploadResult.path);
+            }
         }
 
         const response = await fetch(apiEndpoint, {
@@ -178,7 +203,7 @@ function resetPhotoFieldsWithIds(photoTypeName, urlContainerId, uploadContainerI
         uploadContainer.style.display = 'none';
     }
     if (urlInput) {
-        urlInput.required = true;
+        urlInput.required = false;
     }
     if (fileInput) {
         fileInput.required = false;

@@ -15,7 +15,7 @@ USE legollection;
 CREATE TABLE Categorie (
     idCategorie VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
-    infoPlus VARCHAR(50) NOT NULL,
+    infoPlus VARCHAR(1000) NOT NULL,
     photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idCategorie)
 ) ENGINE=InnoDB;
@@ -48,7 +48,7 @@ CREATE TABLE Local (
     idLocal VARCHAR(50) NOT NULL,
     idSite VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
-    infoLocal VARCHAR(50) NOT NULL,
+    infoLocal VARCHAR(1000) NOT NULL,
     photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idLocal),
     FOREIGN KEY (idSite)
@@ -60,7 +60,7 @@ CREATE TABLE Rangement (
     idRangement VARCHAR(50) NOT NULL,
     idLocal VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
-    infoRangement VARCHAR(50) NOT NULL,
+    infoRangement VARCHAR(1000) NOT NULL,
     photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idRangement),
     FOREIGN KEY (idLocal)
@@ -72,7 +72,7 @@ CREATE TABLE Niveau (
     idNiveau VARCHAR(50) NOT NULL,
     idRangement VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
-    infoNiveau VARCHAR(50) NOT NULL,
+    infoNiveau VARCHAR(1000) NOT NULL,
     photo VARCHAR(255) NOT NULL,
     PRIMARY KEY (idNiveau),
     FOREIGN KEY (idRangement)
@@ -88,9 +88,9 @@ CREATE TABLE Lego (
     idCategorie VARCHAR(50) NOT NULL,
     idOwner VARCHAR(50) NOT NULL,
     nom VARCHAR(50) NOT NULL,
-    infoRangement VARCHAR(50) NOT NULL,
+    infoRangement VARCHAR(1000) NOT NULL,
     photo VARCHAR(255) NOT NULL,
-    infoPlus VARCHAR(50) NOT NULL,
+    infoPlus VARCHAR(1000) NOT NULL,
     date VARCHAR(50) NOT NULL,
     statut VARCHAR(50) NOT NULL,
     idBorrower VARCHAR(50),

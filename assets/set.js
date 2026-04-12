@@ -170,7 +170,7 @@ async function submitSetImageUpdate(event) {
     event.preventDefault();
     const form = event.currentTarget;
 
-    await handleFormWithImageUploadDetailed(form, 'backend/api/update_set_image.php', 'photoType', 'photoFile', (data) => {
+    await handleFormWithImageUploadDetailed(form, 'backend/api/update_set_image.php', 'photoType', 'photo', 'photoFile', (data) => {
         showMessage('success', data.message || 'Image du set mise à jour avec succès.');
         form.reset();
         resetPhotoFields();
