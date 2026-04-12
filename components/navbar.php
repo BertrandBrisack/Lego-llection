@@ -45,6 +45,21 @@
                         <li><a class="dropdown-item" href="add_collection.html">Collection</a></li>
                     </ul>
                 </li>
+                <li class="nav-item dropdown" id="adminMenuContainer" style="display:none;">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Admin
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="admin_users.html"><i class="fas fa-users"></i> Utilisateurs</a></li>
+                        <li><a class="dropdown-item" href="admin_collections.html"><i class="fas fa-layer-group"></i> Collections</a></li>
+                        <li><a class="dropdown-item" href="admin_sets.html"><i class="fas fa-cube"></i> Sets</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="admin_sites.html"><i class="fas fa-map-marker-alt"></i> Sites</a></li>
+                        <li><a class="dropdown-item" href="admin_locals.html"><i class="fas fa-building"></i> Locaux</a></li>
+                        <li><a class="dropdown-item" href="admin_rangements.html"><i class="fas fa-boxes"></i> Rangements</a></li>
+                        <li><a class="dropdown-item" href="admin_niveaux.html"><i class="fas fa-layer-group"></i> Niveaux</a></li>
+                    </ul>
+                </li>
             </ul>
             <div class="d-flex ms-auto">
                 <div id="profileMenuContainer" class="d-flex align-items-center">

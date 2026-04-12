@@ -6,12 +6,20 @@ function checkUserPermissions() {
         .then(data => {
             const isConnected = !!data.connected;
             const userRole = String(data.user?.role || '').trim().toLowerCase();
+            const userId = data.user?.idUtilisateur || '';
 
             const addDropdown = document.getElementById('addDropdown');
             const addDropdownItems = document.querySelectorAll('#addDropdown + .dropdown-menu .dropdown-item');
             const collectionDropdown = document.getElementById('collectionDropdown');
             const myCollectionLink = document.getElementById('myCollectionLink');
             const myBorrowsLink = document.getElementById('myBorrowsLink');
+            const adminMenuContainer = document.getElementById('adminMenuContainer');
+
+            // Gestion du menu Admin - visible uniquement pour l'utilisateur admin
+            if (adminMenuContainer) {
+                const isAdmin = isConnected && userRole === 'admin';
+                adminMenuContainer.style.display = isAdmin ? 'block' : 'none';
+            }
 
             const shouldDisableAdd = !isConnected || userRole === 'user';
             setDisabledState(
@@ -55,6 +63,11 @@ function checkUserPermissions() {
 
             const addDropdown = document.getElementById('addDropdown');
             const collectionDropdown = document.getElementById('collectionDropdown');
+            const adminMenuContainer = document.getElementById('adminMenuContainer');
+
+            if (adminMenuContainer) {
+                adminMenuContainer.style.display = 'none';
+            }
 
             setDisabledState(addDropdown, document.querySelectorAll('#addDropdown + .dropdown-menu .dropdown-item'), true, 'Impossible de vérifier les permissions');
             setDisabledState(collectionDropdown, [document.getElementById('myCollectionLink'), document.getElementById('myBorrowsLink')], true, 'Impossible de vérifier les permissions');

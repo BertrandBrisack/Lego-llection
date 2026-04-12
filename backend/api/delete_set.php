@@ -22,11 +22,15 @@ if (!isset($_SESSION['user']['idUtilisateur'])) {
     exit;
 }
 
-if ($_SESSION['user']['role'] !== 'owner') {
+$userRole = strtolower(trim($_SESSION['user']['role'] ?? ''));
+$isOwner = $userRole === 'owner';
+$isAdmin = $userRole === 'admin';
+
+if (!$isOwner && !$isAdmin) {
     http_response_code(403);
     echo json_encode([
         'success' => false,
-        'message' => 'Seuls les owners peuvent supprimer des sets.'
+        'message' => 'Seuls les owners et les admins peuvent supprimer des sets.'
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -47,7 +51,16 @@ try {
     $setStmt->execute([$idObjet]);
     $set = $setStmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$set || (string)$set['idOwner'] !== (string)$userId) {
+    if (!$set) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Set introuvable.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (!$isAdmin && (string)$set['idOwner'] !== (string)$userId) {
         http_response_code(403);
         echo json_encode([
             'success' => false,
@@ -56,7 +69,7 @@ try {
         exit;
     }
 
-    if (!empty($set['idBorrower']) || strtolower($set['statut'] ?? '') === 'emprunté') {
+    if (!$isAdmin && (!empty($set['idBorrower']) || strtolower(trim($set['statut'] ?? '')) === 'emprunté')) {
         http_response_code(403);
         echo json_encode([
             'success' => false,

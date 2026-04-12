@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des locaux - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f5f5f5; }
+        .admin-container { max-width: 1200px; margin: 30px auto; }
+        .local-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; background: white; transition: all 0.2s; }
+        .local-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .local-photo { max-width: 100px; max-height: 100px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <?php include 'components/navbar.php'; ?>
+    
+    <div class="container admin-container">
+        <h1 class="mb-4">
+            <i class="fas fa-building"></i> Gestion des locaux
+        </h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un local...">
+            </div>
+        </div>
+
+        <div id="localsContainer" class="row">
+            <div class="col-12 text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer ce local ? Tous les rangements et niveaux associés seront supprimés.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/permissions.js"></script>
+    <script src="assets/admin_locals.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof checkUserPermissions === 'function') {
+                checkUserPermissions();
+            }
+        });
+    </script>
+</body>
+</html>

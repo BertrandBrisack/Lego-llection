@@ -51,6 +51,7 @@ try {
             l.idObjet,
             l.nom,
             l.infoPlus,
+            l.infoRangement,
             l.photo,
             l.date,
             l.statut,
