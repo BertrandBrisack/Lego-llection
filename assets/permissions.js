@@ -21,14 +21,14 @@ function checkUserPermissions() {
                 adminMenuContainer.style.display = isAdmin ? 'block' : 'none';
             }
 
-            const shouldDisableAdd = !isConnected || userRole === 'user';
+            const shouldDisableAdd = !isConnected || userRole !== 'owner';
             setDisabledState(
                 addDropdown,
                 addDropdownItems,
                 shouldDisableAdd,
                 !isConnected
                     ? 'Veuillez vous connecter pour ajouter'
-                    : 'Seuls les propriétaires (owner) peuvent ajouter'
+                    : 'Seuls les owners peuvent ajouter'
             );
 
             if (!isConnected) {
