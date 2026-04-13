@@ -292,11 +292,11 @@ function renderSetDetails(set) {
                                     <h2 class="h6">Informations générales</h2>
                                     <ul class="list-unstyled detail-list mb-0 small">
                                         <li class="d-flex align-items-center gap-2">
-                                            <strong>Collection :</strong>
+                                            <strong>Catégorie :</strong>
                                             <span>${escapeHtml(set.categorie_nom || 'Non renseignée')}</span>
                                             ${set.categorie_photo ? `
                                                 <img src="${escapeHtml(resolveImagePath(set.categorie_photo))}"
-                                                     alt="Image de la collection ${escapeHtml(set.categorie_nom || '')}"
+                                                     alt="Image de la catégorie ${escapeHtml(set.categorie_nom || '')}"
                                                      class="collection-badge-image rounded">
                                             ` : ''}
                                         </li>
@@ -322,7 +322,7 @@ function renderSetDetails(set) {
                                         <li><strong>Info niveau :</strong> ${escapeHtml(set.infoNiveau || 'Non renseignée')}</li>
                                         <li><strong>Info rangement :</strong> ${escapeHtml(set.rangement_info || 'Non renseignée')}</li>
                                         <li><strong>Info local :</strong> ${escapeHtml(set.infoLocal || 'Non renseignée')}</li>
-                                        <li><strong>Info collection :</strong> ${escapeHtml(set.categorie_info_plus || 'Non renseignée')}</li>
+                                        <li><strong>Info catégorie :</strong> ${escapeHtml(set.categorie_info_plus || 'Non renseignée')}</li>
                                     </ul>
                                 </div>
                             </div>

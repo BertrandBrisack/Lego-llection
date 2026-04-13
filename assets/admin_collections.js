@@ -54,7 +54,7 @@ function displayCollections(collections) {
     const container = document.getElementById('collectionsContainer');
     
     if (collections.length === 0) {
-        container.innerHTML = '<div class="col-12 alert alert-info">Aucune collection trouvée.</div>';
+        container.innerHTML = '<div class="col-12 alert alert-info">Aucune catégorie trouvée.</div>';
         return;
     }
 

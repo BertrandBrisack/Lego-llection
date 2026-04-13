@@ -267,7 +267,7 @@ function renderSetCard(set) {
                         <span class="badge ${badgeClass}">${escapeHtml(set.statut || 'Inconnu')}</span>
                     </div>
 
-                    ${set.collection ? `<p class="mb-2"><strong>Collection :</strong> ${escapeHtml(set.collection)}</p>` : ''}
+                    ${set.collection ? `<p class="mb-2"><strong>Catégorie :</strong> ${escapeHtml(set.collection)}</p>` : ''}
                     ${set.infoPlus ? `<p class="card-text">${escapeHtml(set.infoPlus)}</p>` : ''}
 
                     <ul class="list-unstyled small text-muted mt-auto mb-0">

@@ -26,25 +26,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $idCategorie = trim($_POST['idCategorie'] ?? '');
 
 if ($idCategorie === '') {
-    echo json_encode(['success' => false, 'message' => 'Collection manquante.'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'message' => 'Catégorie manquante.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 try {
     $pdo->beginTransaction();
 
-    // Supprimer tous les sets associés à cette collection
+    // Supprimer tous les sets associés à cette catégorie
     $pdo->prepare("DELETE FROM Lego WHERE idCategorie = ?")->execute([$idCategorie]);
 
-    // Supprimer la catégorie (collection)
+    // Supprimer la catégorie
     $pdo->prepare("DELETE FROM Categorie WHERE idCategorie = ?")->execute([$idCategorie]);
 
     $pdo->commit();
 
-    echo json_encode(['success' => true, 'message' => 'Collection supprimée avec succès.'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => true, 'message' => 'Catégorie supprimée avec succès.'], JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {
     $pdo->rollBack();
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression de la collection.'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression de la catégorie.'], JSON_UNESCAPED_UNICODE);
 }
 ?>

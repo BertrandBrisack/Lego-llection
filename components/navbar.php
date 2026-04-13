@@ -42,7 +42,8 @@
                         <li><a class="dropdown-item" href="add_rangement.html">Rangement</a></li>
                         <li><a class="dropdown-item" href="add_niveau.html">Niveau</a></li>
                         <li><a class="dropdown-item" href="add_set.html">Set</a></li>
-                        <li><a class="dropdown-item" href="add_collection.html">Collection</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="add_collection.html">Catégorie</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown" id="adminMenuContainer" style="display:none;">
@@ -51,7 +52,7 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" href="admin_users.html"><i class="fas fa-users"></i> Utilisateurs</a></li>
-                        <li><a class="dropdown-item" href="admin_collections.html"><i class="fas fa-layer-group"></i> Collections</a></li>
+                        <li><a class="dropdown-item" href="admin_collections.html"><i class="fas fa-layer-group"></i> Catégories</a></li>
                         <li><a class="dropdown-item" href="admin_sets.html"><i class="fas fa-cube"></i> Sets</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="admin_sites.html"><i class="fas fa-map-marker-alt"></i> Sites</a></li>

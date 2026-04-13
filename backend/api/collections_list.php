@@ -12,6 +12,6 @@ try {
     echo json_encode(['success' => true, 'collections' => $collections], JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Erreur lors de la récupération des collections.'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'error' => 'Erreur lors de la récupération des catégories.'], JSON_UNESCAPED_UNICODE);
 }
 ?>

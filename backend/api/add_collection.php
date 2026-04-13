@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
             $stmt = $pdo->prepare("INSERT INTO Categorie (idCategorie, nom, infoPlus, photo) VALUES (?, ?, ?, ?)");
             $stmt->execute([$idCategorie, $nom, $infoPlus, $photo]);
-            echo json_encode(['success' => true, 'message' => 'Collection ajoutée avec succès.']);
+            echo json_encode(['success' => true, 'message' => 'Catégorie ajoutée avec succès.']);
         } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de la collection : ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de la catégorie : ' . $e->getMessage()]);
         }
     } else {
         echo json_encode(['success' => false, 'message' => 'Veuillez remplir le nom.']);

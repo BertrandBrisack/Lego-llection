@@ -48,8 +48,8 @@ function checkUserPermissions() {
                 [addCollectionLink].filter(Boolean),
                 shouldDisableCollection,
                 !isConnected
-                    ? 'Veuillez vous connecter pour ajouter une collection'
-                    : 'Seuls les administrateurs peuvent ajouter des collections. Contactez bertrand.brisack@gmail.com pour suggérer un ajout de collection.'
+                    ? 'Veuillez vous connecter pour ajouter une catégorie'
+                    : 'Seuls les administrateurs peuvent ajouter des catégories. Contactez bertrand.brisack@gmail.com pour suggérer un ajout de catégorie.'
             );
 
             if (!isConnected) {

@@ -143,11 +143,11 @@ function renderNonOwnerState() {
     const treeContainer = document.getElementById('storageTreeContainer');
 
     if (summary) {
-        summary.innerHTML = '<p class="text-muted mb-0">Seuls les propriétaires (owner) disposent d’une collection personnelle de sets.</p>';
+        summary.innerHTML = '<p class="text-muted mb-0">Seuls les propriétaires (owner) disposent d\'une collection personnelle de sets.</p>';
     }
 
     if (treeContainer) {
-        treeContainer.innerHTML = '<p class="text-muted mb-0">L’arborescence de rangement est disponible uniquement pour les owners.</p>';
+        treeContainer.innerHTML = '<p class="text-muted mb-0">L\'arborescence de rangement est disponible uniquement pour les owners.</p>';
     }
 }
 
@@ -192,7 +192,7 @@ function renderOwnerSummary(data) {
                     </tbody>
                 </table>
             </div>
-        ` : '<p class="text-muted mb-0">Vous n’avez pas encore ajouté de set.</p>'}
+        ` : '<p class="text-muted mb-0">Vous n\'avez pas encore ajouté de set.</p>'}
     `;
 }
 
@@ -205,7 +205,7 @@ function renderStorageTree(sites, counts) {
     storageRegistry.clear();
 
     if (!Array.isArray(sites) || sites.length === 0) {
-        treeContainer.innerHTML = '<p class="text-muted mb-0">Vous n’avez pas encore créé de site de rangement.</p>';
+        treeContainer.innerHTML = '<p class="text-muted mb-0">Vous n\'avez pas encore créé de site de rangement.</p>';
         return;
     }
 
