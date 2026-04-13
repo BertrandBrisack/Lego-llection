@@ -125,7 +125,29 @@
 
         document.getElementById('addCollectionForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            handleFormWithImageUpload(this, 'backend/api/add_collection.php');
+            
+            // Vérifier les permissions avant soumission
+            fetch('backend/api/current_user.php', { credentials: 'include' })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.connected || data.user?.role !== 'admin') {
+                        const messageDiv = document.getElementById('message');
+                        messageDiv.className = 'alert alert-danger';
+                        messageDiv.textContent = 'Accès refusé. Cette fonctionnalité est réservée aux administrateurs.';
+                        messageDiv.style.display = 'block';
+                        return;
+                    }
+                    
+                    // Si admin, procéder à la soumission
+                    handleFormWithImageUpload(this, 'backend/api/add_collection.php');
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la vérification des permissions:', error);
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.className = 'alert alert-danger';
+                    messageDiv.textContent = 'Erreur lors de la vérification des permissions.';
+                    messageDiv.style.display = 'block';
+                });
         });
 
         // Vérifier les permissions au démarrage

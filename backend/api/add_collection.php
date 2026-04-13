@@ -4,6 +4,12 @@ header('Content-Type: application/json');
 
 include '../config.php';
 
+// Vérification des permissions : réservé aux administrateurs
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+    echo json_encode(['success' => false, 'message' => 'Accès refusé. Cette fonctionnalité est réservée aux administrateurs.']);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nom = $_POST['nom'] ?? '';
     $infoPlus = $_POST['infoPlus'] ?? '';
