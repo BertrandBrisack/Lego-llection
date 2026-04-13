@@ -53,12 +53,33 @@ function checkUserPermissions() {
             );
 
             if (!isConnected) {
-                setDisabledState(
-                    collectionDropdown,
-                    [myCollectionLink, myBorrowsLink],
-                    true,
-                    'Veuillez vous connecter pour accéder à votre collection et à vos emprunts'
-                );
+                const loginUrl = 'login.html';
+
+                if (collectionDropdown) {
+                    collectionDropdown.classList.remove('disabled');
+                    collectionDropdown.style.pointerEvents = 'auto';
+                    collectionDropdown.style.opacity = '1';
+                    collectionDropdown.style.cursor = 'pointer';
+                    collectionDropdown.title = '';
+                    collectionDropdown.removeEventListener('click', preventAction);
+                }
+
+                if (myCollectionLink) {
+                    myCollectionLink.href = loginUrl;
+                    myCollectionLink.classList.remove('disabled');
+                    myCollectionLink.style.pointerEvents = 'auto';
+                    myCollectionLink.style.opacity = '1';
+                    myCollectionLink.title = 'Veuillez vous connecter pour accéder à votre collection';
+                }
+
+                if (myBorrowsLink) {
+                    myBorrowsLink.href = loginUrl;
+                    myBorrowsLink.classList.remove('disabled');
+                    myBorrowsLink.style.pointerEvents = 'auto';
+                    myBorrowsLink.style.opacity = '1';
+                    myBorrowsLink.title = 'Veuillez vous connecter pour accéder à vos emprunts';
+                }
+
                 return;
             }
 
@@ -90,8 +111,17 @@ function checkUserPermissions() {
                 adminMenuContainer.style.display = 'none';
             }
 
-            setDisabledState(addDropdown, document.querySelectorAll('#addDropdown + .dropdown-menu .dropdown-item'), true, 'Impossible de vérifier les permissions');
-            setDisabledState(collectionDropdown, [document.getElementById('myCollectionLink'), document.getElementById('myBorrowsLink')], true, 'Impossible de vérifier les permissions');
+            if (collectionDropdown) {
+                collectionDropdown.classList.remove('disabled');
+                collectionDropdown.style.pointerEvents = 'auto';
+                collectionDropdown.style.opacity = '1';
+                collectionDropdown.style.cursor = 'pointer';
+                collectionDropdown.title = '';
+                collectionDropdown.removeEventListener('click', preventAction);
+            }
+
+            setDisabledState(null, document.querySelectorAll('#addDropdown + .dropdown-menu .dropdown-item'), true, 'Impossible de vérifier les permissions');
+            setDisabledState(null, [document.getElementById('myCollectionLink'), document.getElementById('myBorrowsLink')], true, 'Impossible de vérifier les permissions');
         });
 }
 
@@ -103,13 +133,19 @@ function setDisabledState(trigger, items, disabled, title = '') {
         trigger.style.cursor = disabled ? 'not-allowed' : 'pointer';
         trigger.title = title;
         
+        const currentToggle = trigger.getAttribute('data-bs-toggle');
+
         if (disabled) {
-            trigger.setAttribute('data-bs-toggle', 'tooltip');
-            trigger.setAttribute('data-bs-placement', 'right');
+            if (currentToggle !== 'dropdown') {
+                trigger.setAttribute('data-bs-toggle', 'tooltip');
+                trigger.setAttribute('data-bs-placement', 'right');
+            }
             trigger.addEventListener('click', preventAction);
         } else {
-            trigger.removeAttribute('data-bs-toggle');
-            trigger.removeAttribute('data-bs-placement');
+            if (currentToggle === 'tooltip') {
+                trigger.removeAttribute('data-bs-toggle');
+                trigger.removeAttribute('data-bs-placement');
+            }
             trigger.removeEventListener('click', preventAction);
         }
     }
