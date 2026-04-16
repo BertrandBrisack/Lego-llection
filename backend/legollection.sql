@@ -27,7 +27,8 @@ CREATE TABLE Utilisateur (
     role VARCHAR(50) NOT NULL,
     login VARCHAR(50) NOT NULL,
     mdp VARCHAR(255) NOT NULL,
-    PRIMARY KEY (idUtilisateur)
+    PRIMARY KEY (idUtilisateur),
+    UNIQUE KEY unique_login (login)
 ) ENGINE=InnoDB;
 
 CREATE TABLE Site (
