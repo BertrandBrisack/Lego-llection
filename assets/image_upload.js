@@ -219,9 +219,15 @@ function updateImagePreview(url, previewId) {
         return;
     }
 
+    let imageUrl = url.trim();
+    // Pour éviter les problèmes de mixed content en développement local
+    if (window.location.protocol === 'http:' && imageUrl.startsWith('https://')) {
+        imageUrl = imageUrl.replace('https://', 'http://');
+    }
+
     const img = preview.querySelector('img');
     if (img) {
-        img.src = url.trim();
+        img.src = imageUrl;
         img.onerror = function() {
             preview.style.display = 'none';
         };

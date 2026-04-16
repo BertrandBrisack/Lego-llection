@@ -270,7 +270,15 @@ function resolveImagePath(path) {
     if (!path) return '';
     const trimmed = String(path).trim();
 
-    if (/^(https?:)?\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+    if (/^(https?:)?\/\//i.test(trimmed)) {
+        // Pour éviter les problèmes de mixed content en développement local
+        if (window.location.protocol === 'http:' && trimmed.startsWith('https://')) {
+            return trimmed.replace('https://', 'http://');
+        }
+        return trimmed;
+    }
+
+    if (trimmed.startsWith('/')) {
         return trimmed;
     }
 
