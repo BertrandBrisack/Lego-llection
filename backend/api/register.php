@@ -29,7 +29,7 @@ function validatePassword($mdp) {
     }
     
     // Vérifier la ponctuation/caractères spéciaux
-    if (!preg_match('/[!@#$%^&*()_+\-=\[\]{};:'",.<>?\\|`~]/', $mdp)) {
+    if (!preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"\",.<>?\\\\|`~]/', $mdp)) {
         $errors[] = 'Le mot de passe doit contenir au moins un caractère de ponctuation (!@#$%^&*...)';
     }
     

@@ -2,6 +2,8 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
+include __DIR__ . '/../config.php';
+
 // Configuration
 $uploadDir = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') . '/uploads/';
 $maxFileSize = 5 * 1024 * 1024; // 5MB
@@ -24,6 +26,12 @@ function downloadImageFromUrl($url, $uploadDir, $userId, $maxFileSize, $allowedT
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+
+    // Désactiver la vérification SSL en environnement local pour éviter les erreurs de certificat
+    if (isLocalEnvironment()) {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    }
 
     // Headers pour éviter les blocages
     curl_setopt($ch, CURLOPT_HTTPHEADER, [

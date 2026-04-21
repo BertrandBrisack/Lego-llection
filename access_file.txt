@@ -12,7 +12,6 @@ User :
 pseudo		hamster
 mdp			1MotDePasseTop!
 
-
 /!\ Il est connu que les mdp ne sont pas adaptés.
 Quand on crée un compte il est demandé d'entre un
 mdp de 15 caractères répondant à plusieurs critères.
