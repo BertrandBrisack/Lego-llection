@@ -1,0 +1,19 @@
+https://legollection.infinityfreeapp.com/
+
+Admin :
+pseudo		admin
+mdp			1234
+
+Owner :
+pseudo		licorne
+mdp			1234
+
+User :
+pseudo		hamster
+mdp			1MotDePasseTop!
+
+
+/!\ Il est connu que les mdp ne sont pas adaptés.
+Quand on crée un compte il est demandé d'entre un
+mdp de 15 caractères répondant à plusieurs critères.
+1234 est juste facile à retenir pour faire tous les tests.
