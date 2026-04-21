@@ -32,6 +32,27 @@ window.addEventListener('DOMContentLoaded', () => {
         propertiesContainer.addEventListener('click', handleSetActions);
     }
 
+    // Event listeners pour l'édition du profil
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', toggleEditProfile);
+    }
+
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', toggleEditProfile);
+    }
+
+    const editProfileForm = document.getElementById('editProfileForm');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', submitProfileUpdate);
+    }
+
+    const becomeOwnerBtn = document.getElementById('becomeOwnerBtn');
+    if (becomeOwnerBtn) {
+        becomeOwnerBtn.addEventListener('click', becomeOwner);
+    }
+
     loadProfilePage();
 });
 
@@ -94,6 +115,12 @@ async function loadProfilePage() {
         document.getElementById('userPrenom').textContent = data.user.prenomUtilisateur || '';
         document.getElementById('userLogin').textContent = data.user.login || '';
         document.getElementById('userRole').textContent = data.user.role || '';
+
+        // Afficher le bouton "Devenir Owner" seulement pour les users
+        const becomeOwnerContainer = document.getElementById('becomeOwnerButtonContainer');
+        if (becomeOwnerContainer) {
+            becomeOwnerContainer.style.display = data.user.role === 'user' ? 'block' : 'none';
+        }
 
         if (data.user.role === 'owner') {
             await loadOwnerProperties(data.user.idUtilisateur);
@@ -715,5 +742,166 @@ function escapeProfileHtml(text) {
     };
 
     return text ? String(text).replace(/[&<>"']/g, character => map[character]) : '';
+}
+
+function toggleEditProfile() {
+    const displayView = document.getElementById('profileDisplayView');
+    const editView = document.getElementById('profileEditView');
+    const editBtn = document.getElementById('editProfileBtn');
+
+    if (!displayView || !editView || !editBtn) {
+        return;
+    }
+
+    const isEditing = editView.style.display !== 'none';
+
+    if (isEditing) {
+        // Fermer le mode édition
+        displayView.style.display = 'block';
+        editView.style.display = 'none';
+        editBtn.textContent = 'Modifier';
+    } else {
+        // Ouvrir le mode édition et remplir les champs
+        if (currentProfileUser) {
+            document.getElementById('editNomUtilisateur').value = currentProfileUser.nomUtilisateur || '';
+            document.getElementById('editPrenomUtilisateur').value = currentProfileUser.prenomUtilisateur || '';
+            document.getElementById('editLogin').value = currentProfileUser.login || '';
+        }
+        displayView.style.display = 'none';
+        editView.style.display = 'block';
+        editBtn.textContent = 'Annuler';
+        // Nettoyer le feedback
+        const feedbackDiv = document.getElementById('editProfileFeedback');
+        if (feedbackDiv) {
+            feedbackDiv.innerHTML = '';
+        }
+    }
+}
+
+async function submitProfileUpdate(event) {
+    event.preventDefault();
+
+    const nom = document.getElementById('editNomUtilisateur').value.trim();
+    const prenom = document.getElementById('editPrenomUtilisateur').value.trim();
+    const login = document.getElementById('editLogin').value.trim();
+    const feedbackDiv = document.getElementById('editProfileFeedback');
+
+    if (!nom || !prenom || !login) {
+        if (feedbackDiv) {
+            feedbackDiv.innerHTML = '<div class="alert alert-danger" role="alert">Tous les champs sont obligatoires.</div>';
+        }
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('nomUtilisateur', nom);
+        formData.append('prenomUtilisateur', prenom);
+        formData.append('login', login);
+
+        const response = await fetch('backend/api/update_user_profile.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            if (feedbackDiv) {
+                feedbackDiv.innerHTML = `<div class="alert alert-danger" role="alert">${escapeProfileHtml(result.message || 'Erreur lors de la mise à jour.')}</div>`;
+            }
+            return;
+        }
+
+        // Mettre à jour les données locales
+        if (result.user) {
+            currentProfileUser.nomUtilisateur = result.user.nomUtilisateur;
+            currentProfileUser.prenomUtilisateur = result.user.prenomUtilisateur;
+            currentProfileUser.login = result.user.login;
+        }
+
+        // Mettre à jour l'affichage
+        document.getElementById('userNom').textContent = nom;
+        document.getElementById('userPrenom').textContent = prenom;
+        document.getElementById('userLogin').textContent = login;
+
+        // Afficher un message de succès
+        if (feedbackDiv) {
+            feedbackDiv.innerHTML = '<div class="alert alert-success" role="alert">Informations mises à jour avec succès.</div>';
+        }
+
+        // Fermer le mode édition après 1 seconde
+        setTimeout(() => {
+            toggleEditProfile();
+        }, 1000);
+    } catch (error) {
+        console.error('Erreur mise à jour profil:', error);
+        if (feedbackDiv) {
+            feedbackDiv.innerHTML = `<div class="alert alert-danger" role="alert">Erreur : ${escapeProfileHtml(error.message || 'Impossible de mettre à jour les informations.')}</div>`;
+        }
+    }
+}
+
+async function becomeOwner() {
+    if (!confirm('Êtes-vous sûr de vouloir devenir Owner ? Cette action est irréversible.')) {
+        return;
+    }
+
+    const becomeOwnerBtn = document.getElementById('becomeOwnerBtn');
+    if (becomeOwnerBtn) {
+        becomeOwnerBtn.disabled = true;
+        becomeOwnerBtn.textContent = 'Conversion en cours...';
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('becomeOwner', '1');
+
+        const response = await fetch('backend/api/update_user_profile.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(`Erreur : ${result.message || 'Impossible de devenir Owner.'}`);
+            if (becomeOwnerBtn) {
+                becomeOwnerBtn.disabled = false;
+                becomeOwnerBtn.textContent = 'Devenir Owner';
+            }
+            return;
+        }
+
+        // Mettre à jour le rôle en local
+        if (currentProfileUser) {
+            currentProfileUser.role = 'owner';
+        }
+
+        // Mettre à jour l'affichage
+        document.getElementById('userRole').textContent = 'owner';
+        
+        // Masquer le bouton
+        const becomeOwnerContainer = document.getElementById('becomeOwnerButtonContainer');
+        if (becomeOwnerContainer) {
+            becomeOwnerContainer.style.display = 'none';
+        }
+
+        alert('Félicitations ! Vous êtes maintenant Owner.');
+        
+        // Recharger la page pour afficher les propriétés du owner
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    } catch (error) {
+        console.error('Erreur conversion owner:', error);
+        alert(`Erreur : ${error.message || 'Impossible de devenir Owner.'}`);
+        if (becomeOwnerBtn) {
+            becomeOwnerBtn.disabled = false;
+            becomeOwnerBtn.textContent = 'Devenir Owner';
+        }
+    }
 }
 

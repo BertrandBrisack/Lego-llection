@@ -58,8 +58,67 @@
         </div>
     </div>
 
+    <!-- Modal d'édition de collection -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier la catégorie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCollectionForm">
+                        <input type="hidden" id="editCategoryId" name="idCategorie">
+                        
+                        <div class="mb-3">
+                            <label for="editNom" class="form-label">Nom de la catégorie</label>
+                            <input type="text" class="form-control" id="editNom" name="nom" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" name="infoPlus" rows="4"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Photo</label>
+                            <div class="photo-options mb-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="photoType" id="editPhotoUrl" value="url" checked>
+                                    <label class="form-check-label" for="editPhotoUrl">URL de l'image</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="photoType" id="editPhotoUpload" value="upload">
+                                    <label class="form-check-label" for="editPhotoUpload">Uploader une image</label>
+                                </div>
+                            </div>
+                            <div id="editPhotoUrlContainer">
+                                <input type="text" class="form-control" id="editPhoto" name="photo" placeholder="https://exemple.com/image.jpg">
+                                <div id="editPhotoPreview" class="mt-2" style="display: none;">
+                                    <img src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                    <small class="text-muted">Aperçu de l'image</small>
+                                </div>
+                            </div>
+                            <div id="editPhotoUploadContainer" class="mt-2" style="display: none;">
+                                <input type="file" class="form-control" id="editPhotoFile" name="photoFile" accept="image/*">
+                                <div class="form-text">Formats acceptés : JPEG, PNG, GIF, WebP (max 5MB)</div>
+                            </div>
+                        </div>
+
+                        <div id="editFeedback"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="submitEditBtn">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="assets/permissions.js"></script>
+    <script src="assets/image_upload.js"></script>
     <script src="assets/admin_collections.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
